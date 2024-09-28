@@ -1,0 +1,15 @@
+{
+    "config": {
+        "port": 82,
+        "jwtSecret": "",
+        "refreshTokenSecret": ""
+    },
+    
+    "db": {
+        "host": "postgresql-innoverse.alwaysdata.net",
+        "username": "innoverse",
+        "password": "Mathis2409@24",
+        "port": 5432,
+        "database": "innoverse_retendo"
+    }
+}
