@@ -12,7 +12,7 @@ const database = require('../../../../database');
 const cache = require('../../../../cache');
 const util = require('../../../../util');
 const logger = require('../../../../logger');
-const config = require('../../../../../config.json');
+const config = require('../../../../../account-config.json');
 
 const disabledFeatures = {
 	redis: false,
