@@ -1,5 +1,5 @@
 const nodemailer = require('nodemailer');
-const config = require('../config.json');
+const config = require('../account-config.json');
 const path = require('path');
 const fs = require("fs");
 const genericEmailTemplate = fs.readFileSync(path.join(__dirname, './assets/emails/genericTemplate.html'), 'utf8');
