@@ -5,7 +5,7 @@ const util = require('./util');
 const { RNID } = require('./models/rnid');
 const { Server } = require('./models/server');
 const logger = require('./logger');
-const config = require('../config.json');
+const config = require('../account-config.json');
 const { connection_string, options } = config.mongoose;
 
 const discordConnectionSchema = joi.object({
