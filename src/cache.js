@@ -1,6 +1,6 @@
 const fs = require('fs-extra');
 const redis = require('redis');
-const config = require('../config.json');
+const config = require('../account-config.json');
 let client;
 
 const disabledFeatures = {
