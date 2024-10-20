@@ -1,4 +1,4 @@
 node_modules/
 certs/
-src/log/
+src/logs/
 account-config.json
