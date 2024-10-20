@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const joi = require('joi');
 const { RNID } = require('../../../../models/rnid');
-const config = require('../../../../../config.json');
+const config = require('../../../../../account-config.json');
 
 const userSchema = joi.object({
 	mii: joi.object({
