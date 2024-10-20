@@ -5,7 +5,7 @@ const aws = require('aws-sdk');
 const fs = require('fs-extra');
 const mailer = require('./mailer');
 const cache = require('./cache');
-const config = require('../config.json');
+const config = require('../account-config.json');
 
 const disabledFeatures = {
 	redis: false,
