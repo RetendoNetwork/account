@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # this doesnt check game server specific certs, only static file paths
-files='config.json'
+files='account-config.json'
 
 for file in $files; do
     if [ ! -f $file ]; then
