@@ -1,7 +1,7 @@
 const express = require('express');
 const subdomain = require('express-subdomain');
 const logger = require('../../logger');
-const config = require('../../../config.json');
+const config = require('../../../account-config.json');
 
 const disabledFeatures = {
 	redis: false,
