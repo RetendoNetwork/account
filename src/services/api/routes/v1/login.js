@@ -5,12 +5,6 @@ const database = require('../../../../database');
 const cache = require('../../../../cache');
 const util = require('../../../../util');
 
-/**
- * [POST]
- * Implementation of for: https://api.pretendo.cc/v1/login
- * Description: Generates an access token for an API user
- * TODO: Replace this with a more robust OAuth2 implementation
- */
 router.post('/', async (request, response) => {
 	const { body } = request;
 	const { grant_type, username, password, refresh_token } = body;
