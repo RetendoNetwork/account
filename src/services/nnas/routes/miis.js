@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const xmlbuilder = require('xmlbuilder');
 const { RNID } = require('../../../models/rnid');
-const config = require('../../../../config.json');
+const config = require('../../../../account-config.json');
 
 router.get('/', async (request, response) => {
 
