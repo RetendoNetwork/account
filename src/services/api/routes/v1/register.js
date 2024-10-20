@@ -310,7 +310,7 @@ router.post('/', async (request, response) => {
 		await session.endSession();
 	}
 
-	await util.sendConfirmationEmail(pnid);
+	await util.sendConfirmationEmail(rnid);
 
 	const cryptoPath = `${__dirname}/../../../../../certs/service/account`;
 
@@ -333,7 +333,7 @@ router.post('/', async (request, response) => {
 	const accessTokenOptions = {
 		system_type: 0xF, // API
 		token_type: 0x1, // OAuth Access,
-		pid: pnid.get('pid'),
+		pid: rnid.get('pid'),
 		access_level: 0,
 		title_id: BigInt(0),
 		expire_time: BigInt(Date.now() + (3600 * 1000))
@@ -342,7 +342,7 @@ router.post('/', async (request, response) => {
 	const refreshTokenOptions = {
 		system_type: 0xF, // API
 		token_type: 0x2, // OAuth Refresh,
-		pid: pnid.get('pid'),
+		pid: rnid.get('pid'),
 		access_level: 0,
 		title_id: BigInt(0),
 		expire_time: BigInt(Date.now() + (3600 * 1000))
