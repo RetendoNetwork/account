@@ -1,0 +1,6 @@
+account-config.json
+certs
+cdn
+dist
+.env
+node_modules/
