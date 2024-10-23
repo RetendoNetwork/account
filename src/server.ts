@@ -12,7 +12,7 @@ import morgan from 'morgan';
 import xmlbuilder from 'xmlbuilder';
 import xmlparser from '@/middleware/xml-parser';
 //import { connect as connectCache } from '@/cache';
-//import { connect as connectDatabase } from '@/database';
+import { connect as connectDatabase } from '@/database';
 //import { startGRPCServer } from '@/services/grpc/server';
 import { fullUrl, getValueFromHeaders } from '@/util';
 import logger from '@/logger';
@@ -85,7 +85,7 @@ app.use((error: any, request: express.Request, response: express.Response, _next
 });
 
 async function main(): Promise<void> {
-	//await connectDatabase();
+	await connectDatabase();
 	logger.log('Database connected');
 	//await connectCache();
 	logger.log('Cache enabled');

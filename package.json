@@ -16,15 +16,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/RetendoNetwork/account.git"
+    "url": "git+https://github.com/PretendoNetwork/account.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/RetendoNetwork/account/issues"
+    "url": "https://github.com/PretendoNetwork/account/issues"
   },
-  "homepage": "https://github.com/RetendoNetwork/account#readme",
+  "homepage": "https://github.com/PretendoNetwork/account#readme",
   "dependencies": {
     "@aws-sdk/client-ses": "^3.515.0",
     "@pretendonetwork/grpc": "^1.0.5",
@@ -64,7 +64,6 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
-    "@eslint/js": "^9.13.0",
     "@hcaptcha/types": "^1.0.3",
     "@types/bcrypt": "^5.0.0",
     "@types/buffer-crc32": "^0.2.2",
@@ -79,12 +78,10 @@
     "@types/nodemailer": "^6.4.7",
     "@types/qs": "^6.9.7",
     "@types/validator": "^13.7.14",
-    "@typescript-eslint/eslint-plugin": "^5.62.0",
-    "@typescript-eslint/parser": "^5.62.0",
-    "eslint": "^8.57.1",
-    "globals": "^15.11.0",
+    "@typescript-eslint/eslint-plugin": "^5.54.1",
+    "@typescript-eslint/parser": "^5.54.1",
+    "eslint": "^8.35.0",
     "ndarray": "^1.0.19",
-    "typescript": "^4.9.5",
-    "typescript-eslint": "^8.11.0"
+    "typescript": "^4.9.5"
   }
 }

@@ -198,7 +198,7 @@ if (!config.grpc.port) {
 }
 
 if (!config.stripe?.secret_key) {
-	logger.warn('Failed to find Stripe api key! If a RNID is deleted with an active subscription, the subscription will *NOT* be canceled! Set the PN_ACT_CONFIG_STRIPE_SECRET_KEY environment variable to enable');
+	logger.warn('Failed to find Stripe api key! If a RNID is deleted with an active subscription, the subscription will *NOT* be canceled! Set the RN_ACT_CONFIG_STRIPE_SECRET_KEY environment variable to enable');
 }
 
 if (!config.datastore.signature_secret) {
