@@ -4,7 +4,7 @@
 # What works
 | Service        | Status       |
 | -------------- | ------------ |
-| api            | ❌           |
+| api            | ✅           |
 | conntest       | ✅           |
 | datastore      | ❌           |
 | nasc           | ❌           |
