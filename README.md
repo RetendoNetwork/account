@@ -4,8 +4,8 @@
 # What works
 | Service        | Status       |
 | -------------- | ------------ |
-| api            | ✅           |
+| api            | 🟧           |
 | conntest       | ✅           |
 | datastore      | ❌           |
-| nasc           | ❌           |
-| nnas           | ✅           |
+| nasc           | ✅           |
+| nnas           | 🟧           |
