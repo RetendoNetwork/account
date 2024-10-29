@@ -7,8 +7,8 @@ const config = require('../config.json');
 const spacesEndpoint = new aws.Endpoint('nyc3.digitaloceanspaces.com');
 const s3 = new aws.S3({
 	endpoint: spacesEndpoint,
-	accessKeyId: config.aws.spaces.key,
-	secretAccessKey: config.aws.spaces.secret
+	accessKeyId: config.s3.key,
+	secretAccessKey: config.s3.secret
 });
 
 function nintendoPasswordHash(password, pid) {
@@ -40,7 +40,7 @@ async function generateToken(cryptoOptions, tokenOptions) {
 	// Access and refresh tokens use a different format since they must be much smaller
 	// They take no extra crypto options
 	if (!cryptoOptions) {
-		const aesKey = await cache.getServiceAESKey('account', 'hex');
+		const aesKey = await cache.getServiceAESKey('retendo', 'hex');
 
 		const dataBuffer = Buffer.alloc(1 + 1 + 4 + 8);
 
@@ -126,7 +126,7 @@ async function decryptToken(token) {
 	// Access and refresh tokens use a different format since they must be much smaller
 	// Assume a small length means access or refresh token
 	if (token.length <= 32) {
-		const aesKey = await cache.getServiceAESKey('account', 'hex');
+		const aesKey = await cache.getServiceAESKey('retendo', 'hex');
 
 		const iv = Buffer.alloc(16);
 
@@ -138,8 +138,8 @@ async function decryptToken(token) {
 		return decryptedBody;
 	}
 
-	const privateKeyBytes = await cache.getServicePrivateKey('account');
-	const secretKey = await cache.getServiceSecretKey('account');
+	const privateKeyBytes = await cache.getServicePrivateKey('retendo');
+	const secretKey = await cache.getServiceSecretKey('retendo');
 
 	const privateKey = new NodeRSA(privateKeyBytes, 'pkcs1-private-pem', {
 		environment: 'browser',
@@ -245,8 +245,8 @@ async function sendEmailConfirmedEmail(rnid) {
 }
 
 async function sendForgotPasswordEmail(rnid) {
-	const publicKey = await cache.getServicePublicKey('account');
-	const secretKey = await cache.getServiceSecretKey('account');
+	const publicKey = await cache.getServicePublicKey('retendo');
+	const secretKey = await cache.getServiceSecretKey('retendo');
 
 	const cryptoOptions = {
 		public_key: publicKey,
