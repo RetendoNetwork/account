@@ -1,9 +1,11 @@
 const express = require('express');
 const morgan = require('morgan');
 const xmlparser = require('./middleware/xml-parser');
+const xmlbuilder = require('xmlbuilder');
 const database = require('./database');
 const util = require('./util');
 const logger = require('./logger');
+const cache = require('./cache');
 const config = require('../config.json');
 
 const { config: { port } } = config;
@@ -41,10 +43,17 @@ app.use((request, response) => {
 
 	response.set('Content-Type', 'text/xml');
 	response.set('Server', 'Nintendo 3DS (http)');
-	response.set('X-Nintendo-Date', new Date().getTime());
+	response.set('X-Nintendo-Date', new Date().getTime().toString());
 
-	response.status(404);
-	response.send('<errors><error><cause/><code>0008</code><message>Not Found</message></error></errors>');
+	response.status(404).send(xmlbuilder.create({
+		errors: {
+			error: {
+				cause: '',
+				code: '0008',
+				message: 'Not Found'
+			}
+		}
+	}).end());
 });
 
 logger.info('Creating non-404 status handler');
@@ -55,8 +64,7 @@ app.use((error, request, response) => {
 
 	logger.warn(`HTTP ${status} at ${fullUrl} from ${deviceId}: ${error.message}`);
 
-	response.status(status);
-	response.json({
+	response.status(status).json({
 		app: 'api',
 		status,
 		error: error.message
@@ -67,7 +75,6 @@ async function main() {
 	logger.info('Starting server');
 
 	await database.connect();
-	// await cache.connect();
 
 	app.listen(port, () => {
 		logger.log(`Server started on port ${port}`);
