@@ -11,7 +11,7 @@ const nasc = express.Router();
 logger.info('[NASC] Importing middleware');
 nasc.use(NASCMiddleware);
 
-logger.info('[NASC] Applying imported routes');
+logger.info('[NASC] Applying routes');
 nasc.use('/ac', AC);
 
 const router = express.Router();
