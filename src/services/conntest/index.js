@@ -6,7 +6,7 @@ const logger = require('../../logger');
 
 const conntest = express.Router();
 
-logger.info('[CONNTEST] Applying imported routes');
+logger.info('[CONNTEST] Applying routes');
 conntest.get('/', async (request, response) => {
 	response.set('Content-Type', 'text/html');
 	response.set('X-Organization', 'Nintendo');
