@@ -15,7 +15,6 @@ const api = require('./services/api');
 const conntest = require('./services/conntest');
 const nasc = require('./services/nasc');
 const nnas = require('./services/nnas');
-// const datastore = require('./services/datastore');
 
 app.set('etag', false);
 app.disable('x-powered-by');
@@ -32,7 +31,6 @@ app.use(api);
 app.use(conntest);
 app.use(nasc);
 app.use(nnas);
-// app.use(datastore);
 
 logger.info('Creating 404 status handler');
 app.use((request, response) => {
