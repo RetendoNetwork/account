@@ -13,10 +13,11 @@ logger.info('[NNAS] Importing middleware');
 nnas.use(clientHeaderCheck);
 nnas.use(rnidMiddleware);
 
-logger.info('[NNAS] Applying imported routes');
+logger.info('[NNAS] Applying routes');
 nnas.use('/v1/api/admin', routes.ADMIN);
 nnas.use('/v1/api/content', routes.CONTENT);
 nnas.use('/v1/api/devices', routes.DEVICES);
+nnas.use('/v1/api/miis', routes.MIIS);
 nnas.use('/v1/api/oauth20', routes.OAUTH);
 nnas.use('/v1/api/people', routes.PEOPLE);
 nnas.use('/v1/api/provider', routes.PROVIDER);
