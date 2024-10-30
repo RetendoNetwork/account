@@ -6,7 +6,8 @@ const util = require('../../../util');
 const database = require('../../../database');
 
 router.post('/validate/email', async (request, response) => {
-	const { email } = request.body;
+	const body = request.body;
+	const { email } = body;
 
 	if (!email) {
 		return response.send(xmlbuilder.create({
