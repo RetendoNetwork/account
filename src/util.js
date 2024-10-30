@@ -269,7 +269,20 @@ async function sendForgotPasswordEmail(rnid) {
 		subject: '[Retendo Network] Forgot Password',
 		html: `Visit this link to reset your password ${config.website_base}/account/reset-password?token=${encodeURIComponent(passwordResetToken)}`
 	});
-} */
+} 
+	
+async function sendRNIDDeletedEmail(email, username) {
+	await mailer.sendMail({
+		to: email,
+		subject: '[Retendo Network] RNID Deleted',
+		username: username,
+		link: {
+			text: 'Discord Server',
+			href: 'https://discord.com/invite/retendo'
+		},
+		text: `Your RNID ${username} has successfully been deleted. If you had a tier subscription, a separate cancellation email will be sent. If you do not receive this cancellation email, or your subscription is still being charged, please contact @cedke on our Discord server`
+	});
+}*/
 
 module.exports = {
 	nintendoPasswordHash,
@@ -283,5 +296,6 @@ module.exports = {
 	nascError,
 	/* sendConfirmationEmail,
 	sendEmailConfirmedEmail,
-	sendForgotPasswordEmail */
+	sendForgotPasswordEmail,
+	sendRNIDDeletedEmail */
 };
