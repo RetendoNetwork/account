@@ -18,9 +18,7 @@ router.get('/:username', async (request, response) => {
 	const userExists = await database.doesUserExist(username);
 
 	if (userExists) {
-		response.status(400);
-
-		return response.end(xmlbuilder.create({
+		response.status(400).end(xmlbuilder.create({
 			errors: {
 				error: {
 					code: '0100',
@@ -28,31 +26,34 @@ router.get('/:username', async (request, response) => {
 				}
 			}
 		}).end());
+
+		return;
 	}
 
-	response.status(200);
-	response.end();
+	response.send();
 });
 
 router.post('/', ratelimit, deviceCertificateMiddleware, async (request, response) => {
     if (!request.certificate.valid) {
-        response.status(400);
-        return response.send(xmlbuilder.create({
+        response.status(400).send(xmlbuilder.create({
             error: {
                 cause: 'Bad Request',
                 code: '1600',
                 message: 'Unable to process request'
             }
         }).end());
+
+		return;
     }
 
-    const person = request.body.get('person');
+	const body = request.body;
 
-    const userExists = await database.doesUserExist(person.get('user_id'));
+    const person = body.person;
+
+    const userExists = await database.doesUserExist(person.user_id);
 
     if (userExists) {
-        response.status(400);
-        return response.end(xmlbuilder.create({
+        response.status(400).send(xmlbuilder.create({
             errors: {
                 error: {
                     code: '0100',
@@ -60,6 +61,8 @@ router.post('/', ratelimit, deviceCertificateMiddleware, async (request, respons
                 }
             }
         }).end());
+
+		return;
     }
 
     const creationDate = moment().format('YYYY-MM-DDTHH:mm:ss');
@@ -74,41 +77,41 @@ router.post('/', ratelimit, deviceCertificateMiddleware, async (request, respons
         await nexAccount.generatePID();
         await nexAccount.generatePassword();
 
-        nexAccount.owning_pid = nexAccount.get('pid');
+        nexAccount.owning_pid = nexAccount.pid;
 
         await nexAccount.save();
 
-        const primaryPasswordHash = util.nintendoPasswordHash(person.get('password'), nexAccount.get('pid'));
+        const primaryPasswordHash = util.nintendoPasswordHash(person.getpassword, nexAccount.pid);
         const passwordHash = await bcrypt.hash(primaryPasswordHash, 10);
 
         rnid = new RNID({
-            pid: nexAccount.get('pid'),
+            pid: nexAccount.pid,
             creation_date: creationDate,
             updated: creationDate,
-            username: person.get('user_id'),
-            usernameLower: person.get('user_id').toLowerCase(),
+            username: person.user_id,
+            usernameLower: person.user_id.toLowerCase(),
             password: passwordHash,
-            birthdate: person.get('birth_date'),
-            gender: person.get('gender'),
-            country: person.get('country'),
-            language: person.get('language'),
+            birthdate: person.birth_date,
+            gender: person.gender,
+            country: person.country,
+            language: person.language,
             email: {
-                address: person.get('email').get('address').toLowerCase(),
-                primary: person.get('email').get('primary') === 'Y',
-                parent: person.get('email').get('parent') === 'Y',
+                address: person.email.address.toLowerCase(),
+                primary: person.email.primary === 'Y',
+                parent: person.email.parent === 'Y',
                 reachable: false,
-                validated: person.get('email').get('validated') === 'Y',
+                validated: person.email.validated === 'Y',
                 id: crypto.randomBytes(4).readUInt32LE()
             },
-            region: person.get('region'),
+            region: person.region,
             timezone: {
-                name: person.get('tz_name'),
-                offset: (moment.tz(person.get('tz_name')).utcOffset() * 60)
+                name: person.tz_name,
+                offset: (moment.tz(person.tz_name).utcOffset() * 60)
             },
             mii: {
-                name: person.get('mii').get('name'),
-                primary: person.get('mii').get('name') === 'Y',
-                data: person.get('mii').get('data'),
+                name: person.mii.name,
+                primary: person.mii.name === 'Y',
+                data: person.mii.data,
                 id: crypto.randomBytes(4).readUInt32LE(),
                 hash: crypto.randomBytes(7).toString('hex'),
                 image_url: '',
@@ -116,8 +119,8 @@ router.post('/', ratelimit, deviceCertificateMiddleware, async (request, respons
             },
             flags: {
                 active: true,
-                marketing: person.get('marketing_flag') === 'Y',
-                off_device: person.get('off_device_flag') === 'Y'
+                marketing: person.marketing_flag === 'Y',
+                off_device: person.off_device_flag === 'Y'
             },
             identification: {
                 email_code: 1,
@@ -131,21 +134,22 @@ router.post('/', ratelimit, deviceCertificateMiddleware, async (request, respons
         await rnid.save();
     } catch (error) {
         logger.error('[POST] /v1/api/people: ' + error);
-        response.status(400);
-        return response.send(xmlbuilder.create({
+        return response.status(404).send(xmlbuilder.create({
             error: {
                 cause: 'Bad Request',
                 code: '1600',
                 message: 'Unable to process request'
             }
         }).end());
+
+		return;
     }
 
     // await util.sendConfirmationEmail(rnid);
 
     response.send(xmlbuilder.create({
         person: {
-            pid: rnid.get('pid')
+            pid: rnid.pid
         }
     }).end());
 });
@@ -153,11 +157,39 @@ router.post('/', ratelimit, deviceCertificateMiddleware, async (request, respons
 router.get('/@me/profile', async (request, response) => {
 	response.set('Content-Type', 'text/xml');
 	response.set('Server', 'Nintendo 3DS (http)');
-	response.set('X-Nintendo-Date', new Date().getTime());
+	response.set('X-Nintendo-Date', new Date().getTime().toString());
 
-	const { rnid } = request;
+	const rnid = request.rnid;
 
-	const person = await database.getUserProfileJSONByPID(rnid.get('pid'));
+	if (!rnid) {
+		response.status(404).send(xmlbuilder.create({
+			errors: {
+				error: {
+					cause: '',
+					code: '0008',
+					message: 'Not Found'
+				}
+			}
+		}).end());
+
+		return;
+	}
+
+	const person = await database.getUserProfileJSONByPID(rnid.pid);
+
+	if (!person) {
+		response.status(404).send(xmlbuilder.create({
+			errors: {
+				error: {
+					cause: '',
+					code: '0008',
+					message: 'Not Found'
+				}
+			}
+		}).end());
+
+		return;
+	}
 
 	response.send(xmlbuilder.create({
 		person
@@ -167,11 +199,39 @@ router.get('/@me/profile', async (request, response) => {
 router.post('/@me/devices', async (request, response) => {
 	response.set('Content-Type', 'text/xml');
 	response.set('Server', 'Nintendo 3DS (http)');
-	response.set('X-Nintendo-Date', new Date().getTime());
+	response.set('X-Nintendo-Date', new Date().getTime().toString());
 
-	const { rnid } = request;
+	const rnid = request.rnid;
 
-	const person = await database.getUserProfileJSONByPID(rnid.get('pid'));
+	if (!rnid) {
+		response.status(404).send(xmlbuilder.create({
+			errors: {
+				error: {
+					cause: '',
+					code: '0008',
+					message: 'Not Found'
+				}
+			}
+		}).end());
+
+		return;
+	}
+
+	const person = await database.getUserProfileJSONByPID(rnid.pid);
+
+	if (!person) {
+		response.status(404).send(xmlbuilder.create({
+			errors: {
+				error: {
+					cause: '',
+					code: '0008',
+					message: 'Not Found'
+				}
+			}
+		}).end());
+
+		return;
+	}
 
 	response.send(xmlbuilder.create({
 		person
@@ -181,9 +241,23 @@ router.post('/@me/devices', async (request, response) => {
 router.get('/@me/devices', async (request, response) => {
 	response.set('Content-Type', 'text/xml');
 	response.set('Server', 'Nintendo 3DS (http)');
-	response.set('X-Nintendo-Date', new Date().getTime());
+	response.set('X-Nintendo-Date', new Date().getTime().toString());
 
 	const { rnid, headers } = request;
+
+	if (!rnid) {
+		response.status(404).send(xmlbuilder.create({
+			errors: {
+				error: {
+					cause: '',
+					code: '0008',
+					message: 'Not Found'
+				}
+			}
+		}).end());
+
+		return;
+	}
 
 	response.send(xmlbuilder.create({
 		devices: [
@@ -192,7 +266,7 @@ router.get('/@me/devices', async (request, response) => {
 					device_id: headers['x-nintendo-device-id'],
 					language: headers['accept-language'],
 					updated: moment().format('YYYY-MM-DDTHH:MM:SS'),
-					pid: rnid.get('pid'),
+					pid: rnid.pid,
 					platform_id: headers['x-nintendo-platform-id'],
 					region: headers['x-nintendo-region'],
 					serial_number: headers['x-nintendo-serial-number'],
@@ -209,11 +283,39 @@ router.get('/@me/devices', async (request, response) => {
 router.get('/@me/devices/owner', async (request, response) => {
 	response.set('Content-Type', 'text/xml');
 	response.set('Server', 'Nintendo 3DS (http)');
-	response.set('X-Nintendo-Date', moment().add(5, 'h'));
+	response.set('X-Nintendo-Date', moment().add(5, 'h').toString());
 
-	const { rnid } = request;
+	const rnid = request.rnid;
 
-	const person = await database.getUserProfileJSONByPID(rnid.get('pid'));
+	if (!rnid) {
+		response.status(404).send(xmlbuilder.create({
+			errors: {
+				error: {
+					cause: '',
+					code: '0008',
+					message: 'Not Found'
+				}
+			}
+		}).end());
+
+		return;
+	}
+
+	const person = await database.getUserProfileJSONByPID(rnid.pid);
+
+	if (!person) {
+		response.status(404).send(xmlbuilder.create({
+			errors: {
+				error: {
+					cause: '',
+					code: '0008',
+					message: 'Not Found'
+				}
+			}
+		}).end());
+
+		return;
+	}
 
 	response.send(xmlbuilder.create({
 		person
@@ -223,20 +325,35 @@ router.get('/@me/devices/owner', async (request, response) => {
 router.get('/@me/devices/status', async (request, response) => {
 	response.set('Content-Type', 'text/xml');
 	response.set('Server', 'Nintendo 3DS (http)');
-	response.set('X-Nintendo-Date', moment().add(5, 'h'));
+	response.set('X-Nintendo-Date', moment().add(5, 'h').toString());
 
 	response.send(xmlbuilder.create({
 		device: {}
 	}).end());
 });
 
-
 router.put('/@me/miis/@primary', async (request, response) => {
-	const { rnid } = request;
+	const rnid = request.rnid;
 
-	const mii = request.body.get('mii');
+	if (!rnid) {
+		response.status(404).send(xmlbuilder.create({
+			errors: {
+				error: {
+					cause: '',
+					code: '0008',
+					message: 'Not Found'
+				}
+			}
+		}).end());
 
-	const [name, primary, data] = [mii.get('name'), mii.get('primary'), mii.get('data')];
+		return;
+	}
+
+	const body = request.body;
+
+	const mii = body.mii;
+
+	const [name, primary, data] = [mii.name, mii.primary, mii.data];
 
 	await rnid.updateMii({ name, primary, data });
 
@@ -245,14 +362,12 @@ router.put('/@me/miis/@primary', async (request, response) => {
 
 router.put('/@me/devices/@current/inactivate', async (request, response) => {
 	response.set('Server', 'Nintendo 3DS (http)');
-	response.set('X-Nintendo-Date', new Date().getTime());
+	response.set('X-Nintendo-Date', new Date().getTime().toString());
 
-	const { rnid } = request;
+	const rnid = request.rnid;
 
 	if (!rnid) {
-		response.status(400);
-
-		return response.end(xmlbuilder.create({
+		response.status(400).send(xmlbuilder.create({
 			errors: {
 				error: {
 					cause: 'access_token',
@@ -261,19 +376,18 @@ router.put('/@me/devices/@current/inactivate', async (request, response) => {
 				}
 			}
 		}).end());
+
+		return;
 	}
 
-	response.status(200);
-	response.end();
+	response.send();
 });
 
 router.put('/@me/deletion', async (request, response) => {
-	const { rnid } = request;
+	const rnid = request.rnid;
 
 	if (!rnid) {
-		response.status(400);
-
-		return response.end(xmlbuilder.create({
+		response.status(400).send(xmlbuilder.create({
 			errors: {
 				error: {
 					cause: 'access_token',
@@ -282,21 +396,33 @@ router.put('/@me/deletion', async (request, response) => {
 				}
 			}
 		}).end());
+
+		return;
 	}
 
-	await RNID.deleteOne({ pid: rnid.get('pid') });
+	// await RNID.deleteOne({ pid: rnid.pid });
+
+	const email = rnid.email.address;
+
+	await rnid.scrub();
+	await rnid.save();
+
+	try {
+		await util.sendPNIDDeletedEmail(email, rnid.username);
+	} catch (error) {
+		logger.error(`Error sending deletion email ${error}`);
+	}
 
 	response.send('');
 });
 
 router.put('/@me', async (request, response) => {
-	const { rnid } = request;
-	const person = request.body.get('person');
+	const body = request.body;
+	const rnid = request.rnid;
+	const person = body.person;
 
 	if (!rnid) {
-		response.status(400);
-
-		return response.end(xmlbuilder.create({
+		response.status(400).send(xmlbuilder.create({
 			errors: {
 				error: {
 					cause: 'access_token',
@@ -305,16 +431,18 @@ router.put('/@me', async (request, response) => {
 				}
 			}
 		}).end());
+
+		return;
 	}
 
-	const gender = person.get('gender') ? person.get('gender') : rnid.get('gender');
-	const region = person.get('region') ? person.get('region') : rnid.get('region');
-	const timezoneName = person.get('tz_name') ? person.get('tz_name') : rnid.get('timezone.name');
-	const marketingFlag = person.get('marketing_flag') ? person.get('marketing_flag') === 'Y' : rnid.get('flags.marketing');
-	const offDeviceFlag = person.get('off_device_flag') ? person.get('off_device_flag') === 'Y' : rnid.get('flags.off_device');
+	const gender = person.gender ? person.gender : rnid.gender;
+	const region = person.region ? person.region : rnid.region;
+	const timezoneName = person.tz_name ? person.tz_name : rnid.timezone.name;
+	const marketingFlag = person.marketing_flag ? person.marketing_flag === 'Y' : rnid.flags.marketing;
+	const offDeviceFlag = person.off_device_flag ? person.off_device_flag === 'Y' : rnid.flags.off_device;
 
-	if (person.get('password')) {
-		const primaryPasswordHash = util.nintendoPasswordHash(person.get('password'), rnid.get('pid'));
+	if (person.password) {
+		const primaryPasswordHash = util.nintendoPasswordHash(person.password, rnid.pid);
 		const passwordHash = await bcrypt.hash(primaryPasswordHash, 10);
 		
 		rnid.password = passwordHash;
@@ -333,12 +461,10 @@ router.put('/@me', async (request, response) => {
 });
 
 router.get('/@me/emails', async (request, response) => {
-	const { rnid } = request;
+	const rnid = request.rnid;
 
 	if (!rnid) {
-		response.status(400);
-
-		return response.end(xmlbuilder.create({
+		response.status(404).end(xmlbuilder.create({
 			errors: {
 				error: {
 					cause: 'access_token',
@@ -347,21 +473,23 @@ router.get('/@me/emails', async (request, response) => {
 				}
 			}
 		}).end());
+
+		return;
 	}
 
 	response.send(xmlbuilder.create({
 		emails: [
 			{
 				email: {
-					address: rnid.get('email.address'),
-					id: rnid.get('email.id'),
-					parent: rnid.get('email.parent') ? 'Y' : 'N',
-					primary: rnid.get('email.primary') ? 'Y' : 'N',
-					reachable: rnid.get('email.reachable') ? 'Y' : 'N',
+					address: rnid.email.address,
+					id: rnid.email.id,
+					parent: rnid.email.parent ? 'Y' : 'N',
+					primary: rnid.email.primary ? 'Y' : 'N',
+					reachable: rnid.email.reachable ? 'Y' : 'N',
 					type: 'DEFAULT', // what is this?
 					updated_by: 'USER', // need to actually update this
-					validated: rnid.get('email.validated') ? 'Y' : 'N',
-					validated_date: rnid.get('email.validated_date'),
+					validated: rnid.email.validated ? 'Y' : 'N',
+					validated_date: rnid.email.validated_date,
 				}
 			}
 		]
@@ -369,13 +497,12 @@ router.get('/@me/emails', async (request, response) => {
 });
 
 router.put('/@me/emails/@primary', async (request, response) => {
-	const { rnid } = request;
-	const email = request.body.get('email');
+	const body = request.body;
+	const rnid = request.rnid;
+	const email = body.email;
 
-	if (!rnid) {
-		response.status(400);
-
-		return response.end(xmlbuilder.create({
+	if (!rnid || !email || !email.address) {
+		response.status(400).send(xmlbuilder.create({
 			errors: {
 				error: {
 					cause: 'access_token',
@@ -384,20 +511,22 @@ router.put('/@me/emails/@primary', async (request, response) => {
 				}
 			}
 		}).end());
+
+		return;
 	}
 
-	rnid.set('email.address', email.get('address').toLowerCase());
-	rnid.set('email.reachable', false);
-	rnid.set('email.validated', false);
-	rnid.set('email.validated_date', '');
-	rnid.set('email.id', crypto.randomBytes(4).readUInt32LE());
+	rnid.email.address = email.address.toLowerCase();
+	rnid.email.reachable = false;
+	rnid.email.validated = false;
+	rnid.email.validated_date = '';
+	rnid.email.id = crypto.randomBytes(4).readUInt32LE();
 
 	await rnid.generateEmailValidationCode();
 	await rnid.generateEmailValidationToken();
 
 	await rnid.save();
 
-	await util.sendConfirmationEmail(rnid);
+	// await util.sendConfirmationEmail(rnid);
 
 	response.send('');
 });
