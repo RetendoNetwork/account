@@ -70,8 +70,6 @@ app.use((error, request, response) => {
 });
 
 async function main() {
-	logger.info('Starting server');
-
 	await database.connect();
 
 	app.listen(port, () => {
