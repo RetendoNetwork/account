@@ -15,5 +15,13 @@
   "bugs": {
     "url": "https://github.com/RetendoNetwork/account/issues"
   },
-  "homepage": "https://github.com/RetendoNetwork/account#readme"
+  "homepage": "https://github.com/RetendoNetwork/account#readme",
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.8.6",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "express": "^4.21.1"
+  }
 }
