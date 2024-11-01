@@ -1,4 +1,4 @@
-// handles "conntest.nintendo.net" endpoints
+// handles "conntest.nintendowifi.net" endpoints
 
 const express = require('express');
 const subdomain = require('express-subdomain');
