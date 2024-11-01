@@ -1,6 +1,6 @@
 {
-  "name": "account",
-  "version": "2.0.0",
+  "name": "retendo-account",
+  "version": "2.0.1",
   "description": "Account service for Retendo Network",
   "main": "dist/index.js",
   "scripts": {
