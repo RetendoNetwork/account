@@ -3,7 +3,7 @@ const express = require('express');
 const ratelimit = require('express-rate-limit');
 const { getValueFromHeaders } = require('../utils');
 
-export default ratelimit({
+module.exports = ratelimit({
 	windowMs: 60 * 1000,
 	max: 1,
 	keyGenerator: (request) => {

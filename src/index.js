@@ -8,6 +8,7 @@ const utils = require('./utils');
 const logger = require('./logger');
 
 const conntest = require('./services/conntest');
+const nnas = require('./services/nnas');
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use(express.urlencoded({
 app.use(xmlparser);
 
 app.use(conntest);
+app.use(nnas);
 
 const disabledFeatures = {
 	redis: false,

@@ -1,6 +1,6 @@
 // handles "account.nintendo.net" endpoints
 
-const express = requrie('express');
+const express = require('express');
 const app = express();
 const logger = require('../../logger');
 const router = require('./routes/admin');

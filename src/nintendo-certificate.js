@@ -226,4 +226,4 @@ class NintendoCertificate {
 	}
 }
 
-modules.exports = NintendoCertificate;
+module.exports = NintendoCertificate;

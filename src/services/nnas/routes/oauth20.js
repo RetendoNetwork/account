@@ -8,7 +8,7 @@ const consoleStatusVerificationMiddleware = require('../../../middleware/console
 const { getRNIDByTokenAuth, getRNIDByUsername } = require('../../../database');
 const { generateToken } = require('../../../utils');
 const config = require('../../../../config.json');
-const { Device } = require('../../../models/devices');
+const { Device } = require('../../../models/device');
 
 const router = express.Router();
 
