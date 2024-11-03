@@ -7,14 +7,7 @@ const database = require('./database');
 const utils = require('./utils');
 const logger = require('./logger');
 
-// import conntest from '@/services/conntest';
-// import cbvc from '@/services/cbvc';
-// import nnas from '@/services/nnas';
-// import nasc from '@/services/nasc';
-// import datastore from '@/services/datastore';
-// import api from '@/services/api';
-// import localcdn from '@/services/local-cdn';
-// import assets from '@/services/assets';
+const conntest = require('./services/conntest');
 
 const app = express();
 
@@ -29,13 +22,7 @@ app.use(express.urlencoded({
 }));
 app.use(xmlparser);
 
-// app.use(conntest);
-// app.use(cbvc);
-// app.use(nnas);
-// app.use(nasc);
-// app.use(api);
-// app.use(localcdn);
-// app.use(assets);
+app.use(conntest);
 
 const disabledFeatures = {
 	redis: false,

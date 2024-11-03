@@ -1,6 +1,5 @@
-import crypto from 'node:crypto';
-import NodeRSA from 'node-rsa';
-import { SignatureSize } from '@/types/common/signature-size';
+const crypto = require('node:crypto');
+const NodeRSA = require('node-rsa');
 
 const WIIU_DEVICE_PUB_PEM = `-----BEGIN PUBLIC KEY-----
 MFIwEAYHKoZIzj0CAQYFK4EEABsDPgAEAP1WBBgs8XUJIQDDCK5IOZEbb5+h1TqV
