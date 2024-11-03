@@ -1,30 +1,63 @@
 {
-  "name": "retendo-account",
-  "version": "2.0.1",
-  "description": "Account service for Retendo Network",
-  "main": "dist/index.js",
+  "name": "account",
+  "version": "2.0.0",
+  "description": "",
+  "main": "./src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "ts-node src/index.ts"
+    "copy-static": "npm run copy-assets && npm run copy-timezones && npm run copy-views",
+    "copy-assets": "cp -r ./src/assets",
+    "copy-views": "cp -r ./src/views",
+    "copy-timezones": "cp ./src/services/nnas/timezones.json ./dist/services/nnas/timezones.json",
+    "start": "node .",
+    "start:dev": "NODE_ENV=development node ."
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/RetendoNetwork/account.git"
   },
-  "author": "Retendo Contributors",
+  "keywords": [],
+  "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/RetendoNetwork/account/issues"
   },
   "homepage": "https://github.com/RetendoNetwork/account#readme",
-  "devDependencies": {
-    "@types/express": "^5.0.0",
-    "@types/node": "^22.8.6",
-    "typescript": "^5.6.3"
-  },
   "dependencies": {
-    "express": "^4.21.1"
+    "@aws-sdk/client-s3": "^3.685.0",
+    "@aws-sdk/client-ses": "^3.515.0",
+    "@pretendonetwork/grpc": "^1.0.5",
+    "aws-sdk": "^2.978.0",
+    "bcrypt": "^5.0.0",
+    "buffer-crc32": "^0.2.13",
+    "colors": "^1.4.0",
+    "cors": "^2.8.5",
+    "crc": "^4.3.2",
+    "dicer": "^0.2.5",
+    "dotenv": "^16.0.3",
+    "ejs": "^3.1.10",
+    "email-validator": "^2.0.4",
+    "express": "^4.17.1",
+    "express-rate-limit": "^6.7.0",
+    "express-subdomain": "^1.0.5",
+    "fs-extra": "^8.1.0",
+    "got": "^11.8.2",
+    "hcaptcha": "^0.1.0",
+    "image-pixels": "^1.1.1",
+    "joi": "^17.8.3",
+    "mii-js": "github:PretendoNetwork/mii-js",
+    "moment": "^2.29.4",
+    "mongoose": "^7.0.0",
+    "mongoose-unique-validator": "^4.0.0",
+    "morgan": "^1.9.1",
+    "nice-grpc": "^2.1.4",
+    "node-rsa": "^1.0.7",
+    "nodemailer": "^6.4.2",
+    "redis": "^4.3.1",
+    "stripe": "^12.3.0",
+    "tga": "^1.0.4",
+    "validator": "^13.7.0",
+    "xmlbuilder": "^13.0.2",
+    "xmlbuilder2": "0.0.4",
+    "zod": "^3.21.4"
   }
 }

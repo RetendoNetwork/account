@@ -1,5 +1,3 @@
-# .github/workflows/docker.yml
-
 name: Build and Publish Docker Image
 
 on:
