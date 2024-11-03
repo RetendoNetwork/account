@@ -1,9 +1,9 @@
 // handles "account.nintendo.net" endpoints
 
 const express = require('express');
+const subdomain = require('express-subdomain');
 const app = express();
 const logger = require('../../logger');
-const router = require('./routes/admin');
 
 const nnas = express.Router();
 
