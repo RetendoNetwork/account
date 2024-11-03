@@ -6,6 +6,7 @@ const cache = require('./cache');
 const database = require('./database');
 const utils = require('./utils');
 const logger = require('./logger');
+const config = require('../config.json');
 
 const conntest = require('./services/conntest');
 const nnas = require('./services/nnas');

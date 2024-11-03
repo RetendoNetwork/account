@@ -39,4 +39,9 @@ app.use('/v1/api/people', people);
 app.use('/v1/api/provider', provider);
 app.use('/v1/api/support', support);
 
+const router = express.Router();
+
+logger.info('[NNAS] Creating \'account\' subdomain');
+router.use(subdomain('account', nnas));
+
 module.exports = router;
