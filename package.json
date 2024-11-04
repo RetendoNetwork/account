@@ -56,7 +56,7 @@
     "stripe": "^12.3.0",
     "tga": "^1.0.4",
     "validator": "^13.7.0",
-    "xmlbuilder": "^13.0.2",
+    "xmlbuilder": "^15.1.1",
     "xmlbuilder2": "0.0.4",
     "zod": "^3.21.4"
   }
