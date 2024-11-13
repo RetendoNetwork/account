@@ -9,6 +9,7 @@ const logger = require('./logger');
 const config = require('../config.json');
 
 const conntest = require('./services/conntest');
+const nasc = require('./services/nasc');
 const nnas = require('./services/nnas');
 
 const app = express();
@@ -25,6 +26,7 @@ app.use(express.urlencoded({
 app.use(xmlparser);
 
 app.use(conntest);
+app.use(nasc);
 app.use(nnas);
 
 const disabledFeatures = {

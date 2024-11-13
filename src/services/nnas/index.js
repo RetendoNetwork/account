@@ -2,7 +2,6 @@
 
 const express = require('express');
 const subdomain = require('express-subdomain');
-const app = express();
 const logger = require('../../logger');
 
 const nnas = express.Router();
@@ -31,13 +30,13 @@ const provider = require('./routes/provider');
 const support = require('./routes/support');
 
 logger.info('[NNAS] Applying routes');
-app.use('/v1/api/admin', admin);
-app.use('/v1/api/content', content);
-app.use('/v1/api/devices', devices);
-app.use('/v1/api/oauth20', oauth20);
-app.use('/v1/api/people', people);
-app.use('/v1/api/provider', provider);
-app.use('/v1/api/support', support);
+nnas.use('/v1/api/admin', admin);
+nnas.use('/v1/api/content', content);
+nnas.use('/v1/api/devices', devices);
+nnas.use('/v1/api/oauth20', oauth20);
+nnas.use('/v1/api/people', people);
+nnas.use('/v1/api/provider', provider);
+nnas.use('/v1/api/support', support);
 
 const router = express.Router();
 

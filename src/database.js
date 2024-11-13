@@ -12,7 +12,7 @@ const connection_string = config.mongoose.connection_string;
 const options = config.mongoose.options; 
 */
 
-const connection_string = "mongodb://localhost:27017/retendo_account"
+const connection_string = config.mongoose.connection_string;
 
 const discordConnectionSchema = joi.object({
 	id: joi.string()
