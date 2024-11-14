@@ -8,6 +8,7 @@ const logger = require('./logger');
 const config = require('../config.json');
 
 const connection_string = config.mongoose.connection_string;
+const options = { useNewUrlParser: true, useUnifiedTopology: true } // when you have an error, enable this
 
 const discordConnectionSchema = joi.object({
 	id: joi.string()
