@@ -7,11 +7,6 @@ const { Server } = require('./models/server');
 const logger = require('./logger');
 const config = require('../config.json');
 
-/*
-const connection_string = config.mongoose.connection_string;
-const options = config.mongoose.options; 
-*/
-
 const connection_string = config.mongoose.connection_string;
 
 const discordConnectionSchema = joi.object({

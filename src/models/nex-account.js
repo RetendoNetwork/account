@@ -69,3 +69,8 @@ NEXAccountSchema.method('generatePassword', function generatePassword() {
 });
 
 const NEXAccount = model('NEXAccount', NEXAccountSchema);
+
+module.exports = {
+	NEXAccountSchema,
+	NEXAccount
+};

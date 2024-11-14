@@ -286,3 +286,8 @@ RNIDSchema.method('clearPermission', function clearPermission(flag) {
 });
 
 const RNID = model('RNID', RNIDSchema);
+
+module.exports = {
+	RNIDSchema,
+	RNID
+};

@@ -18,3 +18,8 @@ const ServerSchema = new Schema({
 ServerSchema.plugin(uniqueValidator, { message: '{PATH} already in use.' });
 
 const Server = model('Server', ServerSchema);
+
+module.exports = {
+	ServerSchema,
+	Server
+};
