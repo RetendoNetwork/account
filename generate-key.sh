@@ -1,18 +1,15 @@
 #!/bin/bash
 
-configPath="config.json"
+aes_key=$(openssl rand -base64 32)
 
-keyBytes=$(openssl rand -hex 32)
-
-if [ -f "$configPath" ]; then
-    config=$(cat "$configPath")
+if [ -f "config.json" ]; then
+  if grep -q '"aes_key":' config.json; then
+    sed -i 's/"aes_key": *"[^"]*"/"aes_key": "'"$aes_key"'"/' config.json
+  else
+    sed -i '$ s/}/,\n  "aes_key": "'"$aes_key"'"\n}/' config.json
+  fi
 else
-    config="{}"
+  echo "{\"aes_key\": \"$aes_key\"}" > config.json
 fi
 
-config=$(echo "$config" | jq --arg aesKey "$keyBytes" '.aes_key = $aesKey')
-
-echo "$config" > "$configPath"
-
 echo "AES-256-CBC Key generated!"
-echo "Key saved in 'aes_key' field of config.json"

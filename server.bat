@@ -1,5 +1,5 @@
 git pull
-bash generate-keys.sh
+bash generate-key.sh
 docker build --no-cache -t account .
 docker run account
 pause
