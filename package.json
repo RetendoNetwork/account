@@ -37,7 +37,7 @@
     "ejs": "^3.1.10",
     "email-validator": "^2.0.4",
     "express": "^4.17.1",
-    "express-rate-limit": "^6.7.0",
+    "express-rate-limit": "^7.4.1",
     "express-subdomain": "^1.0.5",
     "fs-extra": "^8.1.0",
     "got": "^11.8.2",
