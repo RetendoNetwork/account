@@ -1,7 +1,7 @@
 # account
 - Retendo Network Account Service.
 
-# What works
+# Features
 | Service        | Status       |
 | -------------- | ------------ |
 | api            | 🟥           |

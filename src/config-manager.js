@@ -27,7 +27,7 @@ if (process.env.ACT_CONFIG_EMAIL_SECURE) {
 }
 
 const config = {
-	http: {
+	config: {
 		port: process.env.ACT_CONFIG_HTTP_PORT || ''
 	},
 	mongoose: {
@@ -74,7 +74,7 @@ if (process.env.ACT_CONFIG_STRIPE_SECRET_KEY) {
 
 let configValid = true;
 
-if (!config.http.port) {
+if (!config.config.port) {
 	logger.error('Failed to find HTTP port. Set the ACT_CONFIG_HTTP_PORT environment variable');
 	configValid = false;
 }
