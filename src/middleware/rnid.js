@@ -1,31 +1,33 @@
+const express = require('express');
 const xmlbuilder = require('xmlbuilder');
-const database = require('../database');
+const { getValueFromHeaders } = require('../utils');
+const { getRNIDByBasicAuth, getRNIDByTokenAuth } = require('../database');
 
 async function RNIDMiddleware(request, response, next) {
-	const { headers } = request;
+	const authHeader = getValueFromHeaders(request.headers, 'authorization');
 
-	if (!headers.authorization || !(headers.authorization.startsWith('Bearer') || headers.authorization.startsWith('Basic'))) {
+	if (!authHeader || !(authHeader.startsWith('Bearer') || authHeader.startsWith('Basic'))) {
 		return next();
 	}
 
-	let [type, token] = headers.authorization.split(' ');
-	let user;
+	const parts = authHeader.split(' ');
+	const type = parts[0];
+	let token = parts[1];
+	let rnid;
 
 	if (request.isCemu) {
 		token = Buffer.from(token, 'hex').toString('base64');
 	}
 
 	if (type === 'Basic') {
-		user = await database.getUserBasic(token);
+		rnid = await getRNIDByBasicAuth(token);
 	} else {
-		user = await database.getUserBearer(token);
+		rnid = await getRNIDByTokenAuth(token);
 	}
 
-	if (!user) {
-		response.status(401);
-
+	if (!rnid) {
 		if (type === 'Bearer') {
-			return response.send(xmlbuilder.create({
+			response.status(401).send(xmlbuilder.create({
 				errors: {
 					error: {
 						cause: 'access_token',
@@ -34,9 +36,11 @@ async function RNIDMiddleware(request, response, next) {
 					}
 				}
 			}).end());
+
+			return;
 		}
 
-		return response.send(xmlbuilder.create({
+		response.status(401).send(xmlbuilder.create({
 			errors: {
 				error: {
 					code: '1105',
@@ -44,10 +48,25 @@ async function RNIDMiddleware(request, response, next) {
 				}
 			}
 		}).end());
+
+		return;
 	}
 
-	if (user.get('access_level') < 0) {
-		return response.status(400).send(xmlbuilder.create({
+	if (rnid.deleted) {
+		response.status(400).send(xmlbuilder.create({
+			errors: {
+				error: {
+					code: '0112',
+					message: rnid.username
+				}
+			}
+		}).end());
+
+		return;
+	}
+
+	if (rnid.access_level < 0) {
+		response.status(400).send(xmlbuilder.create({
 			errors: {
 				error: {
 					code: '0122',
@@ -55,11 +74,15 @@ async function RNIDMiddleware(request, response, next) {
 				}
 			}
 		}).end());
+
+		return;
 	}
 
-	request.pnid = user;
+	request.rnid = rnid;
 
 	return next();
 }
 
-module.exports = RNIDMiddleware;
+module.exports = {
+	RNIDMiddleware
+}

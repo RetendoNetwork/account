@@ -2,24 +2,11 @@
 
 const express = require('express');
 const subdomain = require('express-subdomain');
+const { CemuMiddleware } = require('../../middleware/cemu');
+const { RNIDMiddleware } = require('../../middleware/rnid');
 const logger = require('../../logger');
 
 const nnas = express.Router();
-
-async function setCSSHeader(request, response, next) {
-	response.set('Content-Type', 'text/css');
-	return next();
-}
-
-async function setJSHeader(request, response, next) {
-	response.set('Content-Type', 'text/javascript');
-	return next();
-}
-
-async function setIMGHeader(request, response, next) {
-	response.set('Content-Type', 'image/png');
-	return next();
-}
 
 const admin = require('./routes/admin');
 const content = require('./routes/content');
@@ -28,6 +15,9 @@ const oauth20 = require('./routes/oauth20');
 const people = require('./routes/people');
 const provider = require('./routes/provider');
 const support = require('./routes/support');
+
+nnas.use(CemuMiddleware);
+nnas.use(RNIDMiddleware);
 
 logger.info('[NNAS] Applying routes');
 nnas.use('/v1/api/admin', admin);
