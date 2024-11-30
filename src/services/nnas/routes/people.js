@@ -158,7 +158,7 @@ router.post('/', ratelimit, deviceCertificateMiddleware, async (request, respons
 
 		await session.commitTransaction();
 	} catch (error) {
-		Logger.error('[POST] /v1/api/people: ' + error);
+		logger.error('[POST] /v1/api/people: ' + error);
 
 		await session.abortTransaction();
 
