@@ -5,10 +5,13 @@ const { nintendoPasswordHash, decryptToken, unpackToken } = require('./utils');
 const { RNID } = require('./models/rnid');
 const { Server } = require('./models/server');
 const logger = require('./logger');
-const config = require('../config.json');
+const { config, disabledFeatures } = require('./config-manager');
 
 const connection_string = config.mongoose.connection_string;
-const options = { useNewUrlParser: true, useUnifiedTopology: true } // when you have an error, enable this
+const options = {
+	useNewUrlParser: true,
+	useUnifiedTopology: true
+};
 
 const discordConnectionSchema = joi.object({
 	id: joi.string()
@@ -17,7 +20,7 @@ const discordConnectionSchema = joi.object({
 let _connection;
 
 async function connect() {
-	await mongoose.connect(connection_string);
+	await mongoose.connect(connection_string, options);
 
 	_connection = mongoose.connection;
 	_connection.on('error', console.error.bind(console, 'connection error:'));

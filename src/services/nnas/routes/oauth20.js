@@ -7,7 +7,7 @@ const deviceCertificateMiddleware = require('../../../middleware/device-certific
 const consoleStatusVerificationMiddleware = require('../../../middleware/console-status-verification');
 const { getRNIDByTokenAuth, getRNIDByUsername } = require('../../../database');
 const { generateToken } = require('../../../utils');
-const config = require('../../../../config.json');
+const { config, disabledFeatures } = require('../../../config-manager');
 const { Device } = require('../../../models/device');
 
 const router = express.Router();

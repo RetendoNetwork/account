@@ -6,7 +6,7 @@ const cache = require('./cache');
 const database = require('./database');
 const utils = require('./utils');
 const logger = require('./logger');
-const config = require('../config.json');
+const { config, disabledFeatures } = require('./config-manager');
 
 const conntest = require('./services/conntest');
 const nasc = require('./services/nasc');
@@ -28,14 +28,6 @@ app.use(xmlparser);
 app.use(conntest);
 app.use(nasc);
 app.use(nnas);
-
-const disabledFeatures = {
-	redis: false,
-	email: false,
-	captcha: false,
-	s3: false,
-	datastore: false
-};
 
 if (!disabledFeatures.datastore) {
 	//app.use(datastore);
@@ -93,7 +85,7 @@ async function main() {
 	logger.success('Cache enabled');
 
 	app.listen(config.config.port, () => {
-		logger.success(`The server was listening on the port ${config.config.port}`);
+		logger.success(`The account server was listening on the port ${config.config.port}`);
 	});
 }
 

@@ -46,6 +46,4 @@ COPY . .
 
 RUN ls -alh ${app_dir}
 
-COPY config.json ${app_dir}/config.json
-
 CMD ["node", "src/index.js"]

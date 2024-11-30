@@ -1,14 +1,6 @@
 const fs = require('fs-extra');
 const redis = require('redis');
-const config = require('../config.json');
-
-const disabledFeatures = {
-	redis: false,
-	email: false,
-	captcha: false,
-	s3: false,
-	datastore: false
-};
+const { config, disabledFeatures } = require('./config-manager');
 
 let client;
 

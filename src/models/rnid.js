@@ -9,7 +9,7 @@ const Stripe = require('stripe');
 const { DeviceSchema } = require('./device');
 const { uploadCDNAsset } = require('../utils');
 const logger = require('../logger');
-const config = require('../../config.json');
+const { config, disabledFeatures } = require('../config-manager');
 
 let stripe;
 

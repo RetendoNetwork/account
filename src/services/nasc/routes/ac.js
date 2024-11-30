@@ -6,7 +6,6 @@ const cache = require('../../../cache');
 
 const router = express.Router();
 
-// [POST] Gets a NEX server address and token
 router.post('/', async (request, response) => {
 	const requestParams = request.body;
 	const action = utils.nintendoBase64Decode(requestParams.action).toString();

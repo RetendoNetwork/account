@@ -5,23 +5,20 @@ const fs = require('fs-extra');
 const crc32 = require('buffer-crc32');
 const crc = require('crc');
 const { sendMail } = require('./mailer');
-const config = require('../config.json');
-
-const disabledFeatures = {
-	redis: false,
-	email: false,
-	captcha: false,
-	s3: false,
-	datastore: false
-};
+const { config, disabledFeatures } = require('./config-manager');
 
 let s3;
 
 if (!disabledFeatures.s3) {
 	s3 = new aws.S3({
-		endpoint: new aws.Endpoint(config.s3.endpoint),
-		accessKeyId: config.s3.key,
-		secretAccessKey: config.s3.secret
+		endpoint: config.s3.endpoint,
+		forcePathStyle: config.s3.forcePathStyle,
+		region: config.s3.region,
+
+		credentials: {
+			accessKeyId: config.s3.key,
+			secretAccessKey: config.s3.secret,
+		},
 	});
 }
 
@@ -250,7 +247,7 @@ async function sendRNIDDeletedEmail(email, username) {
 		username: username,
 		link: {
 			text: 'Discord Server',
-			href: 'https://discord.com/invite/retendo'
+			href: 'https://discord.gg/QB5YFJfsFJ'
 		},
 		text: `Your RNID ${username} has successfully been deleted. If you had a tier subscription, a separate cancellation email will be sent. If you do not receive this cancellation email, or your subscription is still being charged, please contact @cedke on our Discord server`
 	};
