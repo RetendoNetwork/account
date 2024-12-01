@@ -70,8 +70,8 @@ router.post('/', ratelimit, deviceCertificateMiddleware, async (request, respons
 	let rnid;
 	let nexAccount;
 
-	const session = await connection().startSession();
-	await session.startTransaction();
+	// const session = await connection().startSession();
+	// await session.startTransaction();
 
 	try {
 		nexAccount = new NEXAccount({
@@ -83,7 +83,7 @@ router.post('/', ratelimit, deviceCertificateMiddleware, async (request, respons
 
 		nexAccount.owning_pid = nexAccount.pid;
 
-		await nexAccount.save({ session });
+		await nexAccount.save(); // await nexAccount.save({ session });
 
 		const primaryPasswordHash = nintendoPasswordHash(person.password, nexAccount.pid);
 		const passwordHash = await bcrypt.hash(primaryPasswordHash, 10);
@@ -152,15 +152,15 @@ router.post('/', ratelimit, deviceCertificateMiddleware, async (request, respons
 
 		await rnid.generateEmailValidationCode();
 		await rnid.generateEmailValidationToken();
-		await rnid.generateMiiImages();
+		// await rnid.generateMiiImages();
 
-		await rnid.save({ session });
+		await rnid.save(); // await rnid.save({ session });
 
-		await session.commitTransaction();
+		// await session.commitTransaction();
 	} catch (error) {
 		logger.error('[POST] /v1/api/people: ' + error);
 
-		await session.abortTransaction();
+		// await session.abortTransaction();
 
 		response.status(400).send(xmlbuilder.create({
 			error: {
@@ -172,7 +172,7 @@ router.post('/', ratelimit, deviceCertificateMiddleware, async (request, respons
 
 		return;
 	} finally {
-		await session.endSession();
+		// await session.endSession();
 	}
 
 	await sendConfirmationEmail(rnid);

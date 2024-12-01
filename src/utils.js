@@ -185,13 +185,13 @@ function nascError(errorCode) {
 	});
 }
 
-async function sendConfirmationEmail(pnid) {
+async function sendConfirmationEmail(rnid) {
 	const options = {
 		to: rnid.email.address,
 		subject: '[Retendo Network] Please confirm your email address',
 		username: rnid.username,
 		confirmation: {
-			href: `https://api.innoverse.club/v1/email/verify?token=${pnid.identification.email_token}`,
+			href: `https://api.innoverse.club/v1/email/verify?token=${rnid.identification.email_token}`,
 			code: rnid.identification.email_code
 		},
 		text: `Hello ${rnid.username}! \r\n\r\nYour Retendo Network ID activation is almost complete. Please click the link to confirm your e-mail address and complete the activation process: \r\nhttps://api.innoverse.club/v1/email/verify?token=${rnid.identification.email_token} \r\n\r\nYou may also enter the following 6-digit code on your console: ${rnid.identification.email_code}`
@@ -200,11 +200,11 @@ async function sendConfirmationEmail(pnid) {
 	await sendMail(options);
 }
 
-async function sendEmailConfirmedEmail(pnid)  {
+async function sendEmailConfirmedEmail(rnid)  {
 	const options = {
 		to: rnid.email.address,
 		subject: '[Retendo Network] Email address confirmed',
-		username: pnid.username,
+		username: rnid.username,
 		paragraph: 'your email address has been confirmed. We hope you have fun on Retendo Network!',
 		text: `Dear ${rnid.username}, \r\n\r\nYour email address has been confirmed. We hope you have fun on Retendo Network!`
 	};
@@ -212,7 +212,7 @@ async function sendEmailConfirmedEmail(pnid)  {
 	await sendMail(options);
 }
 
-async function sendForgotPasswordEmail(pnid) {
+async function sendForgotPasswordEmail(rnid) {
 	const tokenOptions = {
 		system_type: 0xF, // * API
 		token_type: 0x5, // * Password reset
