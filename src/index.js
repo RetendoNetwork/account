@@ -8,6 +8,7 @@ const utils = require('./utils');
 const logger = require('./logger');
 const { config, disabledFeatures } = require('./config-manager');
 
+const api = require('./services/api')
 const conntest = require('./services/conntest');
 const nasc = require('./services/nasc');
 const nnas = require('./services/nnas');
@@ -25,6 +26,7 @@ app.use(express.urlencoded({
 }));
 app.use(xmlparser);
 
+app.use(api);
 app.use(conntest);
 app.use(nasc);
 app.use(nnas);
