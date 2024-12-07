@@ -4,6 +4,7 @@ const express = require('express');
 const subdomain = require('express-subdomain');
 const { CemuMiddleware } = require('../../middleware/cemu');
 const { RNIDMiddleware } = require('../../middleware/rnid');
+const { nintendoClientHeaderCheck } = require('../../middleware/client-header');
 const logger = require('../../logger');
 
 const nnas = express.Router();
@@ -17,6 +18,8 @@ const people = require('./routes/people');
 const provider = require('./routes/provider');
 const support = require('./routes/support');
 
+logger.info('[NNAS] Importing middleware');
+nnas.use(nintendoClientHeaderCheck);
 nnas.use(CemuMiddleware);
 nnas.use(RNIDMiddleware);
 

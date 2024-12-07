@@ -14,13 +14,14 @@ const timezones = require('../timezones.json');
 
 const router = express.Router();
 
-router.get('/:username', async (request, response) => {
-	const username = request.params.username;
+router.get('/:username', async (req, res) => {
+	const params = req.params
+	const username = params.username;
 
 	const userExists = await doesRNIDExist(username);
 
 	if (userExists) {
-		response.status(400).send(xmlbuilder.create({
+		res.status(400).send(xmlbuilder.create({
 			errors: {
 				error: {
 					code: '0100',
@@ -32,29 +33,29 @@ router.get('/:username', async (request, response) => {
 		return;
 	}
 
-	response.send();
+	res.send();
 });
 
-router.post('/', ratelimit, deviceCertificateMiddleware, async (request, response) => {
-	if (!request.certificate || !request.certificate.valid) {
-		response.status(400).send(xmlbuilder.create({
+router.post('/', ratelimit, deviceCertificateMiddleware, async (req, res) => {
+	if (!req.certificate || !req.certificate.valid) {
+		res.status(400).send(xmlbuilder.create({
 			error: {
-				cause: 'Bad Request',
+				cause: 'Bad req',
 				code: '1600',
-				message: 'Unable to process request'
+				message: 'Unable to process req'
 			}
 		}).end());
 
 		return;
 	}
 
-    const body = request.body;
+    const body = req.body;
 	const person = body.person;
 
 	const userExists = await doesRNIDExist(person.user_id);
 
 	if (userExists) {
-		response.status(400).send(xmlbuilder.create({
+		res.status(400).send(xmlbuilder.create({
 			errors: {
 				error: {
 					code: '0100',
@@ -162,11 +163,11 @@ router.post('/', ratelimit, deviceCertificateMiddleware, async (request, respons
 
 		// await session.abortTransaction();
 
-		response.status(400).send(xmlbuilder.create({
+		res.status(400).send(xmlbuilder.create({
 			error: {
-				cause: 'Bad Request',
+				cause: 'Bad req',
 				code: '1600',
-				message: 'Unable to process request'
+				message: 'Unable to process req'
 			}
 		}).end());
 
@@ -177,22 +178,22 @@ router.post('/', ratelimit, deviceCertificateMiddleware, async (request, respons
 
 	await sendConfirmationEmail(rnid);
 
-	response.send(xmlbuilder.create({
+	res.send(xmlbuilder.create({
 		person: {
 			pid: rnid.pid
 		}
 	}).end());
 });
 
-router.get('/@me/profile', async (request, response) => {
-	response.set('Content-Type', 'text/xml');
-	response.set('Server', 'Nintendo 3DS (http)');
-	response.set('X-Nintendo-Date', new Date().getTime().toString());
+router.get('/@me/profile', async (req, res) => {
+	res.set('Content-Type', 'text/xml');
+	res.set('Server', 'Nintendo 3DS (http)');
+	res.set('X-Nintendo-Date', new Date().getTime().toString());
 
-	const rnid = request.rnid;
+	const rnid = req.rnid;
 
 	if (!rnid) {
-		response.status(404).send(xmlbuilder.create({
+		res.status(404).send(xmlbuilder.create({
 			errors: {
 				error: {
 					cause: '',
@@ -208,7 +209,7 @@ router.get('/@me/profile', async (request, response) => {
 	const person = await getRNIDProfileJSONByPID(rnid.pid);
 
 	if (!person) {
-		response.status(404).send(xmlbuilder.create({
+		res.status(404).send(xmlbuilder.create({
 			errors: {
 				error: {
 					cause: '',
@@ -221,20 +222,20 @@ router.get('/@me/profile', async (request, response) => {
 		return;
 	}
 
-	response.send(xmlbuilder.create({
+	res.send(xmlbuilder.create({
 		person
 	}, { separateArrayItems: true }).end());
 });
 
-router.post('/@me/devices', async (request, response) => {
-	response.set('Content-Type', 'text/xml');
-	response.set('Server', 'Nintendo 3DS (http)');
-	response.set('X-Nintendo-Date', new Date().getTime().toString());
+router.post('/@me/devices', async (req, res) => {
+	res.set('Content-Type', 'text/xml');
+	res.set('Server', 'Nintendo 3DS (http)');
+	res.set('X-Nintendo-Date', new Date().getTime().toString());
 
-	const rnid = request.rnid;
+	const rnid = req.rnid;
 
 	if (!rnid) {
-		response.status(404).send(xmlbuilder.create({
+		res.status(404).send(xmlbuilder.create({
 			errors: {
 				error: {
 					cause: '',
@@ -250,7 +251,7 @@ router.post('/@me/devices', async (request, response) => {
 	const person = await getRNIDProfileJSONByPID(rnid.pid);
 
 	if (!person) {
-		response.status(404).send(xmlbuilder.create({
+		res.status(404).send(xmlbuilder.create({
 			errors: {
 				error: {
 					cause: '',
@@ -263,31 +264,31 @@ router.post('/@me/devices', async (request, response) => {
 		return;
 	}
 
-	response.send(xmlbuilder.create({
+	res.send(xmlbuilder.create({
 		person
 	}).end());
 });
 
-router.get('/@me/devices', async (request, response) => {
-	response.set('Content-Type', 'text/xml');
-	response.set('Server', 'Nintendo 3DS (http)');
-	response.set('X-Nintendo-Date', new Date().getTime().toString());
+router.get('/@me/devices', async (req, res) => {
+	res.set('Content-Type', 'text/xml');
+	res.set('Server', 'Nintendo 3DS (http)');
+	res.set('X-Nintendo-Date', new Date().getTime().toString());
 
-	const rnid = request.rnid;
-	const deviceID = getValueFromHeaders(request.headers, 'x-nintendo-device-id');
-	const acceptLanguage = getValueFromHeaders(request.headers, 'accept-language');
-	const platformID = getValueFromHeaders(request.headers, 'x-nintendo-platform-id');
-	const region = getValueFromHeaders(request.headers, 'x-nintendo-region');
-	const serialNumber = getValueFromHeaders(request.headers, 'x-nintendo-serial-number');
-	const systemVersion = getValueFromHeaders(request.headers, 'x-nintendo-system-version');
+	const rnid = req.rnid;
+	const deviceID = getValueFromHeaders(req.headers, 'x-nintendo-device-id');
+	const acceptLanguage = getValueFromHeaders(req.headers, 'accept-language');
+	const platformID = getValueFromHeaders(req.headers, 'x-nintendo-platform-id');
+	const region = getValueFromHeaders(req.headers, 'x-nintendo-region');
+	const serialNumber = getValueFromHeaders(req.headers, 'x-nintendo-serial-number');
+	const systemVersion = getValueFromHeaders(req.headers, 'x-nintendo-system-version');
 
 	if (!deviceID || !acceptLanguage || !platformID || !region || !serialNumber || !systemVersion) {
-		response.status(400).send(xmlbuilder.create({
+		res.status(400).send(xmlbuilder.create({
 			errors: {
 				error: {
-					cause: 'Bad Request',
+					cause: 'Bad req',
 					code: '1600',
-					message: 'Unable to process request'
+					message: 'Unable to process req'
 				}
 			}
 		}).end());
@@ -296,7 +297,7 @@ router.get('/@me/devices', async (request, response) => {
 	}
 
 	if (!rnid) {
-		response.status(404).send(xmlbuilder.create({
+		res.status(404).send(xmlbuilder.create({
 			errors: {
 				error: {
 					cause: '',
@@ -309,7 +310,7 @@ router.get('/@me/devices', async (request, response) => {
 		return;
 	}
 
-	response.send(xmlbuilder.create({
+	res.send(xmlbuilder.create({
 		devices: [
 			{
 				device: {
@@ -330,15 +331,15 @@ router.get('/@me/devices', async (request, response) => {
 	}).end());
 });
 
-router.get('/@me/devices/owner', async (request, response) => {
-	response.set('Content-Type', 'text/xml');
-	response.set('Server', 'Nintendo 3DS (http)');
-	response.set('X-Nintendo-Date', moment().add(5, 'h').toString());
+router.get('/@me/devices/owner', async (req, res) => {
+	res.set('Content-Type', 'text/xml');
+	res.set('Server', 'Nintendo 3DS (http)');
+	res.set('X-Nintendo-Date', moment().add(5, 'h').toString());
 
-	const rnid = request.rnid;
+	const rnid = req.rnid;
 
 	if (!rnid) {
-		response.status(404).send(xmlbuilder.create({
+		res.status(404).send(xmlbuilder.create({
 			errors: {
 				error: {
 					cause: '',
@@ -354,7 +355,7 @@ router.get('/@me/devices/owner', async (request, response) => {
 	const person = await getRNIDProfileJSONByPID(rnid.pid);
 
 	if (!person) {
-		response.status(404).send(xmlbuilder.create({
+		res.status(404).send(xmlbuilder.create({
 			errors: {
 				error: {
 					cause: '',
@@ -367,28 +368,28 @@ router.get('/@me/devices/owner', async (request, response) => {
 		return;
 	}
 
-	response.send(xmlbuilder.create({
+	res.send(xmlbuilder.create({
 		person
 	}).end());
 });
 
-router.get('/@me/devices/status', async (_request, response) => {
-	response.set('Content-Type', 'text/xml');
-	response.set('Server', 'Nintendo 3DS (http)');
-	response.set('X-Nintendo-Date', moment().add(5, 'h').toString());
+router.get('/@me/devices/status', async (_req, res) => {
+	res.set('Content-Type', 'text/xml');
+	res.set('Server', 'Nintendo 3DS (http)');
+	res.set('X-Nintendo-Date', moment().add(5, 'h').toString());
 
-	response.send(xmlbuilder.create({
+	res.send(xmlbuilder.create({
 		device: {}
 	}).end());
 });
 
 
-router.put('/@me/miis/@primary', async (request, response) => {
-    const body = request.body;
-	const rnid = request.rnid;
+router.put('/@me/miis/@primary', async (req, res) => {
+    const body = req.body;
+	const rnid = req.rnid;
 
 	if (!rnid) {
-		response.status(404).send(xmlbuilder.create({
+		res.status(404).send(xmlbuilder.create({
 			errors: {
 				error: {
 					cause: '',
@@ -409,17 +410,17 @@ router.put('/@me/miis/@primary', async (request, response) => {
 
 	await rnid.updateMii({ name, primary, data });
 
-	response.send('');
+	res.send('');
 });
 
-router.put('/@me/devices/@current/inactivate', async (request, response) => {
-	response.set('Server', 'Nintendo 3DS (http)');
-	response.set('X-Nintendo-Date', new Date().getTime().toString());
+router.put('/@me/devices/@current/inactivate', async (req, res) => {
+	res.set('Server', 'Nintendo 3DS (http)');
+	res.set('X-Nintendo-Date', new Date().getTime().toString());
 
-	const rnid = request.rnid;
+	const rnid = req.rnid;
 
 	if (!rnid) {
-		response.status(400).send(xmlbuilder.create({
+		res.status(400).send(xmlbuilder.create({
 			errors: {
 				error: {
 					cause: 'access_token',
@@ -432,14 +433,14 @@ router.put('/@me/devices/@current/inactivate', async (request, response) => {
 		return;
 	}
 
-	response.send();
+	res.send();
 });
 
-router.post('/@me/deletion', async (request, response) => {
-	const rnid = request.rnid;
+router.post('/@me/deletion', async (req, res) => {
+	const rnid = req.rnid;
 
 	if (!rnid) {
-		response.status(400).send(xmlbuilder.create({
+		res.status(400).send(xmlbuilder.create({
 			errors: {
 				error: {
 					cause: 'access_token',
@@ -460,19 +461,19 @@ router.post('/@me/deletion', async (request, response) => {
 	try {
 		await sendRNIDDeletedEmail(email, rnid.username);
 	} catch (error) {
-		Logger.error(`Error sending deletion email ${error}`);
+		logger.error(`Error sending deletion email ${error}`);
 	}
 
-	response.send('');
+	res.send('');
 });
 
-router.put('/@me', async (request, response) => {
-    const body = request.body;
-	const rnid = request.rnid;
-	const person =body.person;
+router.put('/@me', async (req, res) => {
+    const body = req.body;
+	const rnid = req.rnid;
+	const person = body.person;
 
 	if (!rnid) {
-		response.status(400).send(xmlbuilder.create({
+		res.status(400).send(xmlbuilder.create({
 			errors: {
 				error: {
 					cause: 'access_token',
@@ -530,14 +531,14 @@ router.put('/@me', async (request, response) => {
 
 	await rnid.save();
 
-	response.send('');
+	res.send('');
 });
 
-router.get('/@me/emails', async (request, response) => {
-	const rnid = request.rnid;
+router.get('/@me/emails', async (req, res) => {
+	const rnid = req.rnid;
 
 	if (!rnid) {
-		response.status(400).send(xmlbuilder.create({
+		res.status(400).send(xmlbuilder.create({
 			errors: {
 				error: {
 					cause: 'access_token',
@@ -550,7 +551,7 @@ router.get('/@me/emails', async (request, response) => {
 		return;
 	}
 
-	response.send(xmlbuilder.create({
+	res.send(xmlbuilder.create({
 		emails: [
 			{
 				email: {
@@ -569,13 +570,13 @@ router.get('/@me/emails', async (request, response) => {
 	}).end());
 });
 
-router.put('/@me/emails/@primary', async (request, response) => {
-    const body = request.body;
-	const rnid = request.rnid;
+router.put('/@me/emails/@primary', async (req, res) => {
+    const body = req.body;
+	const rnid = req.rnid;
     const email = body.email;
 
 	if (!rnid || !email || !email.address) {
-		response.status(400).send(xmlbuilder.create({
+		res.status(400).send(xmlbuilder.create({
 			errors: {
 				error: {
 					cause: 'access_token',
@@ -601,7 +602,7 @@ router.put('/@me/emails/@primary', async (request, response) => {
 
 	await sendConfirmationEmail(rnid);
 
-	response.send('');
+	res.send('');
 });
 
 module.exports = router;

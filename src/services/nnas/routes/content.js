@@ -6,12 +6,12 @@ const timezones = require('../timezones.json');
 
 const router = express.Router();
 
-router.get('/agreements/:type/:region/:version', (request, response) => {
-	response.set('Content-Type', 'text/xml');
-	response.set('Server', 'Nintendo 3DS (http)');
-	response.set('X-Nintendo-Date', new Date().getTime().toString());
+router.get('/agreements/:type/:region/:version', (req, res) => {
+	res.set('Content-Type', 'text/xml');
+	res.set('Server', 'Nintendo 3DS (http)');
+	res.set('X-Nintendo-Date', new Date().getTime().toString());
 
-	response.send(xmlbuilder.create({
+	res.send(xmlbuilder.create({
 		agreements: {
 			agreement: [
 				{
@@ -118,10 +118,12 @@ router.get('/agreements/:type/:region/:version', (request, response) => {
 	}).end());
 });
 
-router.get('/time_zones/:countryCode/:language', (request, response) => {
-	response.set('Content-Type', 'text/xml');
-	response.set('Server', 'Nintendo 3DS (http)');
-	response.set('X-Nintendo-Date', new Date().getTime().toString());
+router.get('/time_zones/:countryCode/:language', (req, res) => {
+	res.set('Content-Type', 'text/xml');
+	res.set('Server', 'Nintendo 3DS (http)');
+	res.set('X-Nintendo-Date', new Date().getTime().toString());
+
+	const params = req.params;
 
 	/*
 	// * Old method. Crashes WiiU when sending a list with over 32 entries, but otherwise works
@@ -141,13 +143,13 @@ router.get('/time_zones/:countryCode/:language', (request, response) => {
 	});
 	*/
 
-	const countryCode = request.params.countryCode;
-	const language = request.params.language;
+	const countryCode = params.countryCode;
+	const language = params.language;
 
 	const regionLanguages = timezones[countryCode];
 	const regionTimezones = regionLanguages[language] ? regionLanguages[language] : Object.values(regionLanguages)[0];
 
-	response.send(xmlbuilder.create({
+	res.send(xmlbuilder.create({
 		timezones: {
 			timezone: regionTimezones
 		}

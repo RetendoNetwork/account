@@ -12,15 +12,15 @@ const { Device } = require('../../../models/device');
 
 const router = express.Router();
 
-router.post('/access_token/generate', deviceCertificateMiddleware, consoleStatusVerificationMiddleware, async (request, response) => {
-	const body = request.body;
+router.post('/access_token/generate', deviceCertificateMiddleware, consoleStatusVerificationMiddleware, async (req, res) => {
+	const body = req.body;
 	const grantType = body.grant_type;
 	const username = body.user_id;
 	const password = body.password;
 	const refreshToken = body.refresh_token;
 
 	if (!['password', 'refresh_token'].includes(grantType)) {
-		response.status(400).send(xmlbuilder.create({
+		res.status(400).send(xmlbuilder.create({
 			error: {
 				cause: 'grant_type',
 				code: '0004',
@@ -35,7 +35,7 @@ router.post('/access_token/generate', deviceCertificateMiddleware, consoleStatus
 
 	if (grantType === 'password') {
 		if (!username || username.trim() === '') {
-			response.status(400).send(xmlbuilder.create({
+			res.status(400).send(xmlbuilder.create({
 				error: {
 					cause: 'user_id',
 					code: '0002',
@@ -47,7 +47,7 @@ router.post('/access_token/generate', deviceCertificateMiddleware, consoleStatus
 		}
 
 		if (!password || password.trim() === '') {
-			response.status(400).send(xmlbuilder.create({
+			res.status(400).send(xmlbuilder.create({
 				error: {
 					cause: 'password',
 					code: '0002',
@@ -61,7 +61,7 @@ router.post('/access_token/generate', deviceCertificateMiddleware, consoleStatus
 		rnid = await getRNIDByUsername(username);
 
 		if (!rnid || !await bcrypt.compare(password, rnid.password)) {
-			response.status(400).send(xmlbuilder.create({
+			res.status(400).send(xmlbuilder.create({
 				errors: {
 					error: {
 						code: '0106',
@@ -74,7 +74,7 @@ router.post('/access_token/generate', deviceCertificateMiddleware, consoleStatus
 		}
 	} else {
 		if (!refreshToken || refreshToken.trim() === '') {
-			response.status(400).send(xmlbuilder.create({
+			res.status(400).send(xmlbuilder.create({
 				error: {
 					cause: 'refresh_token',
 					code: '0106',
@@ -89,7 +89,7 @@ router.post('/access_token/generate', deviceCertificateMiddleware, consoleStatus
 			rnid = await getRNIDByTokenAuth(refreshToken);
 
 			if (!rnid) {
-				response.status(400).send(xmlbuilder.create({
+				res.status(400).send(xmlbuilder.create({
 					error: {
 						cause: 'refresh_token',
 						code: '0106',
@@ -100,7 +100,7 @@ router.post('/access_token/generate', deviceCertificateMiddleware, consoleStatus
 				return;
 			}
 		} catch (error) {
-			response.status(400).send(xmlbuilder.create({
+			res.status(400).send(xmlbuilder.create({
 				error: {
 					cause: 'refresh_token',
 					code: '0106',
@@ -113,7 +113,7 @@ router.post('/access_token/generate', deviceCertificateMiddleware, consoleStatus
 	}
 
 	if (rnid.deleted) {
-		response.status(400).send(xmlbuilder.create({
+		res.status(400).send(xmlbuilder.create({
 			error: {
 				code: '0112',
 				message: rnid.username
@@ -123,9 +123,9 @@ router.post('/access_token/generate', deviceCertificateMiddleware, consoleStatus
 		return;
 	}
 
-	if (request.device?.model === 'wup') {
+	if (req.device?.model === 'wup') {
 		await Device.updateOne({
-			_id: request.device?._id
+			_id: req.device?._id
 		}, {
 			$addToSet: {
 				linked_pids: rnid.pid
@@ -134,7 +134,7 @@ router.post('/access_token/generate', deviceCertificateMiddleware, consoleStatus
 	}
 
 	if (rnid.access_level < 0) {
-		response.status(400).send(xmlbuilder.create({
+		res.status(400).send(xmlbuilder.create({
 			errors: {
 				error: {
 					code: '0122',
@@ -166,7 +166,7 @@ router.post('/access_token/generate', deviceCertificateMiddleware, consoleStatus
 	const accessToken = accessTokenBuffer ? accessTokenBuffer.toString('hex') : '';
 	const newRefreshToken = refreshTokenBuffer ? refreshTokenBuffer.toString('hex') : '';
 
-	response.send(xmlbuilder.create({
+	res.send(xmlbuilder.create({
 		OAuth20: {
 			access_token: {
 				token: accessToken,

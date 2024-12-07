@@ -6,14 +6,15 @@ const { config } = require('../../../config-manager');
 
 const router = express.Router();
 
-router.post('/', async (request, response) => {
-	const grantType = request.body?.grant_type;
-	const username = request.body?.username;
-	const password = request.body?.password;
-	const refreshToken = request.body?.refresh_token;
+router.post('/', async (req, res) => {
+	const body = req.body;
+	const grantType = body?.grant_type;
+	const username = body?.username;
+	const password = body?.password;
+	const refreshToken = body?.refresh_token;
 
 	if (!['password', 'refresh_token'].includes(grantType)) {
-		response.status(400).json({
+		res.status(400).json({
 			app: 'api',
 			status: 400,
 			error: 'Invalid grant type'
@@ -23,7 +24,7 @@ router.post('/', async (request, response) => {
 	}
 
 	if (grantType === 'password' && (!username || username.trim() === '')) {
-		response.status(400).json({
+		res.status(400).json({
 			app: 'api',
 			status: 400,
 			error: 'Invalid or missing username'
@@ -33,7 +34,7 @@ router.post('/', async (request, response) => {
 	}
 
 	if (grantType === 'password' && (!password || password.trim() === '')) {
-		response.status(400).json({
+		res.status(400).json({
 			app: 'api',
 			status: 400,
 			error: 'Invalid or missing password'
@@ -43,7 +44,7 @@ router.post('/', async (request, response) => {
 	}
 
 	if (grantType === 'refresh_token' && (!refreshToken || refreshToken.trim() === '')) {
-		response.status(400).json({
+		res.status(400).json({
 			app: 'api',
 			status: 400,
 			error: 'Invalid or missing refresh token'
@@ -58,7 +59,7 @@ router.post('/', async (request, response) => {
 		rnid = await getRNIDByUsername(username);
 
 		if (!rnid) {
-			response.status(400).json({
+			res.status(400).json({
 				app: 'api',
 				status: 400,
 				error: 'User not found'
@@ -70,7 +71,7 @@ router.post('/', async (request, response) => {
 		const hashedPassword = nintendoPasswordHash(password, rnid.pid);
 
 		if (!rnid || !bcrypt.compareSync(hashedPassword, rnid.password)) {
-			response.status(400).json({
+			res.status(400).json({
 				app: 'api',
 				status: 400,
 				error: 'Invalid or missing password'
@@ -82,7 +83,7 @@ router.post('/', async (request, response) => {
 		rnid = await getRNIDByTokenAuth(refreshToken);
 
 		if (!rnid) {
-			response.status(400).json({
+			res.status(400).json({
 				app: 'api',
 				status: 400,
 				error: 'Invalid or missing refresh token'
@@ -93,7 +94,7 @@ router.post('/', async (request, response) => {
 	}
 
 	if (rnid.deleted) {
-		response.status(400).json({
+		res.status(400).json({
 			app: 'api',
 			status: 400,
 			error: 'User not found'
@@ -126,7 +127,7 @@ router.post('/', async (request, response) => {
 	const accessToken = accessTokenBuffer ? accessTokenBuffer.toString('hex') : '';
 	const newRefreshToken = refreshTokenBuffer ? refreshTokenBuffer.toString('hex') : '';
 
-	response.json({
+	res.json({
 		access_token: accessToken,
 		token_type: 'Bearer',
 		expires_in: 3600,

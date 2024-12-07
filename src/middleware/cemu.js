@@ -1,9 +1,9 @@
 const express = require('express');
 
-function CemuMiddleware(request, _response, next) {
-	const subdomain = request.subdomains.reverse().join('.');
+function CemuMiddleware(req, _res, next) {
+	const subdomain = req.subdomains.reverse().join('.');
 
-	request.isCemu = subdomain === 'c.account';
+	req.isCemu = subdomain === 'c.account';
 
 	return next();
 }

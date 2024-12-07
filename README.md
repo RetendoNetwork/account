@@ -4,7 +4,7 @@
 # Features
 | Service        | Status       |
 | -------------- | ------------ |
-| api            | 🟥           |
+| api            | ✅           |
 | conntest       | ✅           |
 | nasc           | ✅           |
 | nnas           | ✅           |

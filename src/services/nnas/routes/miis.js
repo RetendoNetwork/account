@@ -6,17 +6,16 @@ const { config } = require('../../../config-manager');
 
 const router = express.Router();
 
-
-router.get('/', async (request, responsee) => {
-	const input = getValueFromQueryString(request.query, 'pids');
+router.get('/', async (req, res) => {
+	const input = getValueFromQueryString(req.query, 'pids');
 
 	if (!input) {
-		response.status(400).send(xmlbuilder.create({
+		res.status(400).send(xmlbuilder.create({
 			errors: {
 				error: {
-					cause: 'Bad Request',
+					cause: 'Bad req',
 					code: '1600',
-					message: 'Unable to process request'
+					message: 'Unable to process req'
 				}
 			}
 		}).end());
@@ -96,9 +95,9 @@ router.get('/', async (request, responsee) => {
 	}
 
 	if (miis.length === 0) {
-		response.status(404).end();
+		res.status(404).end();
 	} else {
-		response.send(xmlbuilder.create({
+		res.send(xmlbuilder.create({
 			miis: {
 				mii: miis
 			}

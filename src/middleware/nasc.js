@@ -5,25 +5,25 @@ const utils = require('../utils');
 const database = require('../database');
 const NintendoCertificate = require('../nintendo-certificate');
 
-async function NASCMiddleware(request, response, next) {
-	const requestParams = request.body;
+async function NASCMiddleware(req, res, next) {
+	const reqParams = req.body;
 
-	if (!requestParams.action ||
-		!requestParams.fcdcert ||
-		!requestParams.csnum ||
-		!requestParams.macadr ||
-		!requestParams.titleid ||
-		!requestParams.servertype
+	if (!reqParams.action ||
+		!reqParams.fcdcert ||
+		!reqParams.csnum ||
+		!reqParams.macadr ||
+		!reqParams.titleid ||
+		!reqParams.servertype
 	) {
-		return response.status(200).send(utils.nascError('null')); // This is what Nintendo sends
+		return res.status(200).send(utils.nascError('null'));
 	}
 
-	const action = utils.nintendoBase64Decode(requestParams.action).toString();
-	const fcdcert = utils.nintendoBase64Decode(requestParams.fcdcert);
-	const serialNumber = utils.nintendoBase64Decode(requestParams.csnum).toString();
-	const macAddress = utils.nintendoBase64Decode(requestParams.macadr).toString();
-	const titleID = utils.nintendoBase64Decode(requestParams.titleid).toString();
-	const environment = utils.nintendoBase64Decode(requestParams.servertype).toString();
+	const action = utils.nintendoBase64Decode(reqParams.action).toString();
+	const fcdcert = utils.nintendoBase64Decode(reqParams.fcdcert);
+	const serialNumber = utils.nintendoBase64Decode(reqParams.csnum).toString();
+	const macAddress = utils.nintendoBase64Decode(reqParams.macadr).toString();
+	const titleID = utils.nintendoBase64Decode(reqParams.titleid).toString();
+	const environment = utils.nintendoBase64Decode(reqParams.servertype).toString();
 
 	const macAddressHash = crypto.createHash('sha256').update(macAddress).digest('base64');
 	const fcdcertHash = crypto.createHash('sha256').update(fcdcert).digest('base64');
@@ -32,30 +32,30 @@ async function NASCMiddleware(request, response, next) {
 	let pidHmac;
 	let password;
 
-	if (requestParams.userid) {
-		pid = utils.nintendoBase64Decode(requestParams.userid).toString();
+	if (reqParams.userid) {
+		pid = utils.nintendoBase64Decode(reqParams.userid).toString();
 	}
 
-	if (requestParams.uidhmac) {
-		pidHmac = utils.nintendoBase64Decode(requestParams.uidhmac).toString();
+	if (reqParams.uidhmac) {
+		pidHmac = utils.nintendoBase64Decode(reqParams.uidhmac).toString();
 	}
 
-	if (requestParams.passwd) {
-		password = utils.nintendoBase64Decode(requestParams.passwd).toString();
+	if (reqParams.passwd) {
+		password = utils.nintendoBase64Decode(reqParams.passwd).toString();
 	}
 
 	if (action !== 'LOGIN' && action !== 'SVCLOC') {
-		return response.status(200).send(utils.nascError('null')); // This is what Nintendo sends
+		return res.status(200).send(utils.nascError('null'));
 	}
 
 	const cert = new NintendoCertificate(fcdcert);
 	
 	if (!cert.valid) {
-		return response.status(200).send(utils.nascError('121'));
+		return res.status(200).send(utils.nascError('121'));
 	}
 
 	if (!validNintendoMACAddress(macAddress)) {
-		return response.status(200).send(utils.nascError('null'));
+		return res.status(200).send(utils.nascError('null'));
 	}
 
 	let model;
@@ -81,7 +81,7 @@ async function NASCMiddleware(request, response, next) {
 	}
 
 	if (!model) {
-		return response.status(200).send(utils.nascError('null'));
+		return res.status(200).send(utils.nascError('null'));
 	}
 
 	let device = await Device.findOne({
@@ -94,14 +94,14 @@ async function NASCMiddleware(request, response, next) {
 
 	if (device) {
 		if (device.get('access_level') < 0) {
-			return response.status(200).send(utils.nascError('102'));
+			return res.status(200).send(utils.nascError('102'));
 		}
 
 		if (pid) {
 			const linkedPIDs = device.get('linked_pids');
 
 			if (!linkedPIDs.includes(pid)) {
-				return response.status(200).send(utils.nascError('102'));
+				return res.status(200).send(utils.nascError('102'));
 			}
 		}
 	}
@@ -150,11 +150,8 @@ async function NASCMiddleware(request, response, next) {
 
 				await session.abortTransaction();
 
-				// 3DS expects 200 even on error
-				return response.status(200).send(utils.nascError('102'));
+				return res.status(200).send(utils.nascError('102'));
 			} finally {
-				// * This runs regardless of failure
-				// * Returning on catch will not prevent this from running
 				await session.endSession();
 			}
 		}
@@ -163,10 +160,10 @@ async function NASCMiddleware(request, response, next) {
 	const nexUser = await NEXAccount.findOne({ pid });
 
 	if (!nexUser || nexUser.get('access_level') < 0) {
-		return response.status(200).send(utils.nascError('102'));
+		return res.status(200).send(utils.nascError('102'));
 	}
 
-	request.nexUser = nexUser;
+	req.nexUser = nexUser;
 
 	return next();
 }
@@ -198,10 +195,8 @@ const NINTENDO_VENDER_OUIS = [
 	'001AE9', '0019FD', '00191D', '0017AB', '001656', '0009BF'
 ];
 
-// TODO: Make something better
 const MAC_REGEX = /^[0-9a-fA-F]{12}$/;
 
-// Maybe should later parse more data out
 function validNintendoMACAddress(macAddress) {
 	if (!NINTENDO_VENDER_OUIS.includes(macAddress.substring(0, 6).toUpperCase())) {
 		return false;

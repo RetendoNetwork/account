@@ -2,14 +2,14 @@ const express = require('express');
 const NintendoCertificate = require('../nintendo-certificate');
 const { getValueFromHeaders } = require('../utils');
 
-function deviceCertificateMiddleware(request, _response, next) {
-	const certificate = getValueFromHeaders(request.headers, 'x-nintendo-device-cert');
+function deviceCertificateMiddleware(req, _res, next) {
+	const certificate = getValueFromHeaders(req.headers, 'x-nintendo-device-cert');
 
 	if (!certificate) {
 		return next();
 	}
 
-	request.certificate = new NintendoCertificate(certificate);
+	req.certificate = new NintendoCertificate(certificate);
 
 	return next();
 }

@@ -3,8 +3,8 @@ const xmlbuilder = require('xmlbuilder');
 const { getValueFromHeaders } = require('../utils');
 const { getRNIDByBasicAuth, getRNIDByTokenAuth } = require('../database');
 
-async function RNIDMiddleware(request, response, next) {
-	const authHeader = getValueFromHeaders(request.headers, 'authorization');
+async function RNIDMiddleware(req, res, next) {
+	const authHeader = getValueFromHeaders(req.headers, 'authorization');
 
 	if (!authHeader || !(authHeader.startsWith('Bearer') || authHeader.startsWith('Basic'))) {
 		return next();
@@ -15,7 +15,7 @@ async function RNIDMiddleware(request, response, next) {
 	let token = parts[1];
 	let rnid;
 
-	if (request.isCemu) {
+	if (req.isCemu) {
 		token = Buffer.from(token, 'hex').toString('base64');
 	}
 
@@ -27,7 +27,7 @@ async function RNIDMiddleware(request, response, next) {
 
 	if (!rnid) {
 		if (type === 'Bearer') {
-			response.status(401).send(xmlbuilder.create({
+			res.status(401).send(xmlbuilder.create({
 				errors: {
 					error: {
 						cause: 'access_token',
@@ -40,7 +40,7 @@ async function RNIDMiddleware(request, response, next) {
 			return;
 		}
 
-		response.status(401).send(xmlbuilder.create({
+		res.status(401).send(xmlbuilder.create({
 			errors: {
 				error: {
 					code: '1105',
@@ -53,7 +53,7 @@ async function RNIDMiddleware(request, response, next) {
 	}
 
 	if (rnid.deleted) {
-		response.status(400).send(xmlbuilder.create({
+		res.status(400).send(xmlbuilder.create({
 			errors: {
 				error: {
 					code: '0112',
@@ -66,7 +66,7 @@ async function RNIDMiddleware(request, response, next) {
 	}
 
 	if (rnid.access_level < 0) {
-		response.status(400).send(xmlbuilder.create({
+		res.status(400).send(xmlbuilder.create({
 			errors: {
 				error: {
 					code: '0122',
@@ -78,7 +78,7 @@ async function RNIDMiddleware(request, response, next) {
 		return;
 	}
 
-	request.rnid = rnid;
+	req.rnid = rnid;
 
 	return next();
 }

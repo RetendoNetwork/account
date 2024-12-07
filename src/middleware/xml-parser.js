@@ -3,10 +3,10 @@ const xmlbuilder = require('xmlbuilder');
 const xmlParser = require('xmlbuilder2');
 const { getValueFromHeaders, mapToObject } = require('../utils');
 
-function XMLMiddleware(request, response, next) {
-	if (request.method == 'POST' || request.method == 'PUT') {
-		const contentType = getValueFromHeaders(request.headers, 'content-type');
-		const contentLength = getValueFromHeaders(request.headers, 'content-length');
+function XMLMiddleware(req, res, next) {
+	if (req.method == 'POST' || req.method == 'PUT') {
+		const contentType = getValueFromHeaders(req.headers, 'content-type');
+		const contentLength = getValueFromHeaders(req.headers, 'content-length');
 		let body = '';
 
 		if (
@@ -23,18 +23,18 @@ function XMLMiddleware(request, response, next) {
 			return next();
 		}
 
-		request.setEncoding('utf-8');
-		request.on('data', (chunk) => {
+		req.setEncoding('utf-8');
+		req.on('data', (chunk) => {
 			body += chunk;
 		});
 
-		request.on('end', () => {
+		req.on('end', () => {
 			try {
-				request.body = xmlParser.document(body);
-				request.body = request.body.toObject();
-				request.body = mapToObject(request.body);
+				req.body = xmlParser.document(body);
+				req.body = req.body.toObject();
+				req.body = mapToObject(req.body);
 			} catch (error) {
-				return response.status(401).send(xmlbuilder.create({
+				return res.status(401).send(xmlbuilder.create({
 					errors: {
 						error: {
 							code: '0004',

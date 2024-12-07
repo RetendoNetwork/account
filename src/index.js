@@ -15,9 +15,6 @@ const nnas = require('./services/nnas');
 
 const app = express();
 
-app.set('view engine', 'ejs');
-app.set('views', __dirname + '/views');
-
 logger.info('Setting up Middleware');
 app.use(morgan('dev'));
 app.use(express.json());
@@ -31,14 +28,10 @@ app.use(conntest);
 app.use(nasc);
 app.use(nnas);
 
-if (!disabledFeatures.datastore) {
-	//app.use(datastore);
-}
-
 logger.info('Creating 404 status handler');
-app.use((request, response) => {
-	const url = utils.fullUrl(request);
-	let deviceID = utils.getValueFromHeaders(request.headers, 'X-Nintendo-Device-ID');
+app.use((req, res) => {
+	const url = utils.fullUrl(req);
+	let deviceID = utils.getValueFromHeaders(req.headers, 'X-Nintendo-Device-ID');
 
 	if (!deviceID) {
 		deviceID = 'Unknown';
@@ -46,11 +39,11 @@ app.use((request, response) => {
 
 	logger.warn(`HTTP 404 at ${url} from ${deviceID}`);
 
-	response.set('Content-Type', 'text/xml');
-	response.set('Server', 'Nintendo 3DS (http)');
-	response.set('X-Nintendo-Date', new Date().getTime().toString());
+	res.set('Content-Type', 'text/xml');
+	res.set('Server', 'Nintendo 3DS (http)');
+	res.set('X-Nintendo-Date', new Date().getTime().toString());
 
-	response.status(404).send(xmlbuilder.create({
+	res.status(404).send(xmlbuilder.create({
 		errors: {
 			error: {
 				cause: '',
@@ -62,10 +55,10 @@ app.use((request, response) => {
 });
 
 logger.info('Creating non-404 status handler');
-app.use((error, request, response, _next) => {
+app.use((error, req, res, _next) => {
 	const status = error.status || 500;
-	const url = utils.fullUrl(request);
-	let deviceID = utils.getValueFromHeaders(request.headers, 'X-Nintendo-Device-ID');
+	const url = utils.fullUrl(req);
+	let deviceID = utils.getValueFromHeaders(req.headers, 'X-Nintendo-Device-ID');
 
 	if (!deviceID) {
 		deviceID = 'Unknown';
@@ -73,7 +66,7 @@ app.use((error, request, response, _next) => {
 
 	logger.warn(`HTTP ${status} at ${url} from ${deviceID}: ${error.message}`);
 
-	response.status(status).json({
+	res.status(status).json({
 		app: 'api',
 		status,
 		error: error.message

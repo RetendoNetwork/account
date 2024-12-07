@@ -7,11 +7,11 @@ const logger = require('../../logger');
 const conntest = express.Router();
 
 logger.info('[CONNTEST] Applying routes');
-conntest.get('/', async (request, response) => {
-	response.set('Content-Type', 'text/html');
-	response.set('X-Organization', 'Nintendo');
+conntest.get('/', async (req, res) => {
+	res.set('Content-Type', 'text/html');
+	res.set('X-Organization', 'Nintendo');
 
-	response.send(`
+	res.send(`
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>

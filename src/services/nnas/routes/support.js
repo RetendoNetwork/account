@@ -7,12 +7,12 @@ const { sendEmailConfirmedEmail, sendConfirmationEmail, sendForgotPasswordEmail 
 
 const router = express.Router();
 
-router.post('/validate/email', async (request, response) => {
-    const body = request.body;
+router.post('/validate/email', async (req, res) => {
+    const body = req.body;
 	const email = body.email;
 
 	if (!email) {
-		response.send(xmlbuilder.create({
+		res.send(xmlbuilder.create({
 			errors: {
 				error: {
 					cause: 'email',
@@ -29,7 +29,7 @@ router.post('/validate/email', async (request, response) => {
 
 	dns.resolveMx(domain, (error) => {
 		if (error) {
-			return response.send(xmlbuilder.create({
+			return res.send(xmlbuilder.create({
 				errors: {
 					error: {
 						code: '1126',
@@ -39,18 +39,19 @@ router.post('/validate/email', async (request, response) => {
 			}).end());
 		}
 
-		response.send();
+		res.send();
 	});
 });
 
-router.put('/email_confirmation/:pid/:code', async (request, response) => {
-	const code = request.params.code;
-	const pid = Number(request.params.pid);
+router.put('/email_confirmation/:pid/:code', async (req, res) => {
+	const params = req.params;
+	const code = params.code;
+	const pid = Number(params.pid);
 
 	const rnid = await getRNIDByPID(pid);
 
 	if (!rnid) {
-		response.status(400).send(xmlbuilder.create({
+		res.status(400).send(xmlbuilder.create({
 			errors: {
 				error: {
 					code: '0130',
@@ -63,7 +64,7 @@ router.put('/email_confirmation/:pid/:code', async (request, response) => {
 	}
 
 	if (rnid.identification.email_code !== code) {
-		response.status(400).send(xmlbuilder.create({
+		res.status(400).send(xmlbuilder.create({
 			errors: {
 				error: {
 					code: '0116',
@@ -84,16 +85,16 @@ router.put('/email_confirmation/:pid/:code', async (request, response) => {
 
 	await sendEmailConfirmedEmail(rnid);
 
-	response.status(200).send('');
+	res.status(200).send('');
 });
 
-router.get('/resend_confirmation', async (request, response) => {
-	const pid = Number(request.headers['x-nintendo-pid']);
+router.get('/resend_confirmation', async (req, res) => {
+	const pid = Number(req.headers['x-nintendo-pid']);
 
 	const rnid = await getRNIDByPID(pid);
 
 	if (!rnid) {
-		response.status(400).send(xmlbuilder.create({
+		res.status(400).send(xmlbuilder.create({
 			errors: {
 				error: {
 					code: '0130',
@@ -107,16 +108,17 @@ router.get('/resend_confirmation', async (request, response) => {
 
 	await sendConfirmationEmail(rnid);
 
-	response.status(200).send('');
+	res.status(200).send('');
 });
 
-router.get('/forgotten_password/:pid', async (request, response) => {
-	const pid = Number(request.params.pid);
+router.get('/forgotten_password/:pid', async (req, res) => {
+	const params = req.params;
+	const pid = Number(params.pid);
 
 	const rnid = await getRNIDByPID(pid);
 
 	if (!rnid) {
-		response.status(400).send(xmlbuilder.create({
+		res.status(400).send(xmlbuilder.create({
 			errors: {
 				error: {
 					cause: 'device_id',
@@ -131,7 +133,7 @@ router.get('/forgotten_password/:pid', async (request, response) => {
 
 	await sendForgotPasswordEmail(rnid);
 
-	response.status(200).send('');
+	res.status(200).send('');
 });
 
 module.exports = router;

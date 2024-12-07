@@ -7,18 +7,18 @@ const { RNID } = require('../../../models/rnid');
 
 const router = express.Router();
 
-router.get('/mapped_ids', async (request, response) => {
-	const inputType = getValueFromQueryString(request.query, 'input_type');
-	const outputType = getValueFromQueryString(request.query, 'output_type');
-	const input = getValueFromQueryString(request.query, 'input');
+router.get('/mapped_ids', async (req, res) => {
+	const inputType = getValueFromQueryString(req.query, 'input_type');
+	const outputType = getValueFromQueryString(req.query, 'output_type');
+	const input = getValueFromQueryString(req.query, 'input');
 
 	if (!inputType || !outputType || !input) {
-		response.status(400).send(xmlbuilder.create({
+		res.status(400).send(xmlbuilder.create({
 			errors: {
 				error: {
-					cause: 'Bad Request',
+					cause: 'Bad req',
 					code: '1600',
-					message: 'Unable to process request'
+					message: 'Unable to process req'
 				}
 			}
 		}).end());
@@ -80,19 +80,19 @@ router.get('/mapped_ids', async (request, response) => {
 		results.push(result);
 	}
 
-	response.send(xmlbuilder.create({
+	res.send(xmlbuilder.create({
 		mapped_ids: {
 			mapped_id: results
 		}
 	}).end());
 });
 
-router.get('/time', async (request, response) => {
-	response.set('X-Nintendo-Date', Date.now().toString());
-	response.set('Server', 'Nintendo 3DS (http)');
-	response.set('Date', new Date().toUTCString());
+router.get('/time', async (req, res) => {
+	res.set('X-Nintendo-Date', Date.now().toString());
+	res.set('Server', 'Nintendo 3DS (http)');
+	res.set('Date', new Date().toUTCString());
 
-	response.send('');
+	res.send('');
 });
 
 module.exports = router;

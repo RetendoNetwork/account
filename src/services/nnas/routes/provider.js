@@ -6,11 +6,11 @@ const { NEXAccount } = require('../../../models/nex-account');
 
 const router = express.Router();
 
-router.get('/service_token/@me', async (request, response) => {
-	const rnid = request.rnid;
+router.get('/service_token/@me', async (req, res) => {
+	const rnid = req.rnid;
 
 	if (!rnid) {
-		response.status(400).send(xmlbuilder.create({
+		res.status(400).send(xmlbuilder.create({
 			errors: {
 				error: {
 					cause: 'access_token',
@@ -23,14 +23,14 @@ router.get('/service_token/@me', async (request, response) => {
 		return;
 	}
 
-	const clientID = getValueFromQueryString(request.query, 'client_id');
+	const clientID = getValueFromQueryString(req.query, 'client_id');
 
 	if (!clientID) {
-		response.send(xmlbuilder.create({
+		res.send(xmlbuilder.create({
 			errors: {
 				error: {
 					code: '1021',
-					message: 'The requested game server was not found'
+					message: 'The reqed game server was not found'
 				}
 			}
 		}).end());
@@ -38,14 +38,14 @@ router.get('/service_token/@me', async (request, response) => {
 		return;
 	}
 
-	const titleID = getValueFromHeaders(request.headers, 'x-nintendo-title-id');
+	const titleID = getValueFromHeaders(req.headers, 'x-nintendo-title-id');
 
 	if (!titleID) {
-		response.send(xmlbuilder.create({
+		res.send(xmlbuilder.create({
 			errors: {
 				error: {
 					code: '1021',
-					message: 'The requested game server was not found'
+					message: 'The reqed game server was not found'
 				}
 			}
 		}).end());
@@ -57,11 +57,11 @@ router.get('/service_token/@me', async (request, response) => {
 	const server = await getServerByClientID(clientID, serverAccessLevel);
 
 	if (!server || !server.aes_key) {
-		response.send(xmlbuilder.create({
+		res.send(xmlbuilder.create({
 			errors: {
 				error: {
 					code: '1021',
-					message: 'The requested game server was not found'
+					message: 'The reqed game server was not found'
 				}
 			}
 		}).end());
@@ -70,11 +70,11 @@ router.get('/service_token/@me', async (request, response) => {
 	}
 
 	if (server.maintenance_mode) {
-		response.send(xmlbuilder.create({
+		res.send(xmlbuilder.create({
 			errors: {
 				error: {
 					code: '2002',
-					message: 'The requested game server is under maintenance'
+					message: 'The reqed game server is under maintenance'
 				}
 			}
 		}).end());
@@ -94,22 +94,22 @@ router.get('/service_token/@me', async (request, response) => {
 	const serviceTokenBuffer = await generateToken(server.aes_key, tokenOptions);
 	let serviceToken = serviceTokenBuffer ? serviceTokenBuffer.toString('base64') : '';
 
-	if (request.isCemu) {
+	if (req.isCemu) {
 		serviceToken = Buffer.from(serviceToken, 'base64').toString('hex');
 	}
 
-	response.send(xmlbuilder.create({
+	res.send(xmlbuilder.create({
 		service_token: {
 			token: serviceToken
 		}
 	}).end());
 });
 
-router.get('/nex_token/@me', async (request, response) => {
-	const rnid = request.rnid;
+router.get('/nex_token/@me', async (req, res) => {
+	const rnid = req.rnid;
 
 	if (!rnid) {
-		response.status(400).send(xmlbuilder.create({
+		res.status(400).send(xmlbuilder.create({
 			errors: {
 				error: {
 					cause: 'access_token',
@@ -127,7 +127,7 @@ router.get('/nex_token/@me', async (request, response) => {
 	});
 
 	if (!nexAccount) {
-		response.status(404).send(xmlbuilder.create({
+		res.status(404).send(xmlbuilder.create({
 			errors: {
 				error: {
 					cause: '',
@@ -140,10 +140,10 @@ router.get('/nex_token/@me', async (request, response) => {
 		return;
 	}
 
-	const gameServerID = getValueFromQueryString(request.query, 'game_server_id');
+	const gameServerID = getValueFromQueryString(req.query, 'game_server_id');
 
 	if (!gameServerID) {
-		response.send(xmlbuilder.create({
+		res.send(xmlbuilder.create({
 			errors: {
 				error: {
 					code: '0118',
@@ -159,11 +159,11 @@ router.get('/nex_token/@me', async (request, response) => {
 	const server = await getServerByGameServerID(gameServerID, serverAccessLevel);
 
 	if (!server || !server.aes_key) {
-		response.send(xmlbuilder.create({
+		res.send(xmlbuilder.create({
 			errors: {
 				error: {
 					code: '1021',
-					message: 'The requested game server was not found'
+					message: 'The reqed game server was not found'
 				}
 			}
 		}).end());
@@ -172,11 +172,11 @@ router.get('/nex_token/@me', async (request, response) => {
 	}
 
 	if (server.maintenance_mode) {
-		response.send(xmlbuilder.create({
+		res.send(xmlbuilder.create({
 			errors: {
 				error: {
 					code: '2002',
-					message: 'The requested game server is under maintenance'
+					message: 'The reqed game server is under maintenance'
 				}
 			}
 		}).end());
@@ -184,14 +184,14 @@ router.get('/nex_token/@me', async (request, response) => {
 		return;
 	}
 
-	const titleID = getValueFromHeaders(request.headers, 'x-nintendo-title-id');
+	const titleID = getValueFromHeaders(req.headers, 'x-nintendo-title-id');
 
 	if (!titleID) {
-		response.send(xmlbuilder.create({
+		res.send(xmlbuilder.create({
 			errors: {
 				error: {
 					code: '1021',
-					message: 'The requested game server was not found'
+					message: 'The reqed game server was not found'
 				}
 			}
 		}).end());
@@ -211,11 +211,11 @@ router.get('/nex_token/@me', async (request, response) => {
 	const nexTokenBuffer = await generateToken(server.aes_key, tokenOptions);
 	let nexToken = nexTokenBuffer ? nexTokenBuffer.toString('base64') : '';
 
-	if (request.isCemu) {
+	if (req.isCemu) {
 		nexToken = Buffer.from(nexToken || '', 'base64').toString('hex');
 	}
 
-	response.send(xmlbuilder.create({
+	res.send(xmlbuilder.create({
 		nex_token: {
 			host: server.ip,
 			nex_password: nexAccount.password,

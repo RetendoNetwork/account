@@ -135,10 +135,10 @@ function unpackToken(token) {
 	return unpacked;
 }
 
-function fullUrl(request) {
-	const protocol = request.protocol;
-	const host = request.host;
-	const opath = request.originalUrl;
+function fullUrl(req) {
+	const protocol = req.protocol;
+	const host = req.host;
+	const opath = req.originalUrl;
 
 	return `${protocol}://${host}${opath}`;
 }
@@ -191,7 +191,7 @@ async function sendConfirmationEmail(rnid) {
 		subject: '[Retendo Network] Please confirm your email address',
 		username: rnid.username,
 		confirmation: {
-			href: `https://api.innoverse.club/v1/email/verify?token=${rnid.identification.email_token}`,
+			href: `https://api.retendo.online/v1/email/verify?token=${rnid.identification.email_token}`,
 			code: rnid.identification.email_code
 		},
 		text: `Hello ${rnid.username}! \r\n\r\nYour Retendo Network ID activation is almost complete. Please click the link to confirm your e-mail address and complete the activation process: \r\nhttps://api.innoverse.club/v1/email/verify?token=${rnid.identification.email_token} \r\n\r\nYou may also enter the following 6-digit code on your console: ${rnid.identification.email_code}`
