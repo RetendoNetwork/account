@@ -1,7 +1,7 @@
-import express from 'express';
-import bcrypt from 'bcrypt';
-import { PNID } from '@/models/pnid';
-import { decryptToken, unpackToken, nintendoPasswordHash } from '@/util';
+const express = require('express');
+const bcrypt = require('bcrypt');
+const { RNID } = require('../../../models/rnid');
+const { nintendoPasswordHash, unpackToken, decryptToken} = require('../../../utils');
 
 const router = express.Router();
 

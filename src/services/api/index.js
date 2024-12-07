@@ -9,7 +9,7 @@ const api = express.Router();
 const login = require('./v1/login');
 const register = require('./v1/register');
 const forgot_password = require('./v1/forgot-password');
-const reset_password = requrie('./v1/resetpassword');
+const reset_password = require('./v1/reset-password');
 
 logger.info('[API] Applying routes');
 api.use('/v1/login', login);

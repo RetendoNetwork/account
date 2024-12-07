@@ -3,14 +3,13 @@ const express = require('express');
 const emailvalidator = require('email-validator');
 const bcrypt = require('bcrypt');
 const moment = require('moment');
-const hcaptcha = require('hcaptcha');
 const Mii = require('../../../models/mii');
 const { doesRNIDExist } = require('../../../database');
 const { nintendoPasswordHash, sendConfirmationEmail, generateToken } = require('../../../utils');
 const logger = require('../../../logger');
 const { RNID } = require('../../../models/rnid');
 const { NEXAccount } = require('../../../models/nex-account');
-const { config, disabledFeatures } = require('../../../config-manager');
+const { config } = require('../../../config-manager');
 
 const router = express.Router();
 
@@ -31,35 +30,6 @@ router.post('/', async (request, response) => {
 	const username = request.body.username?.trim();
 	const miiName = request.body.mii_name?.trim();
 	const password = request.body.password?.trim();
-<<<<<<< HEAD
-	// const passwordConfirm = request.body.password_confirm?.trim();
-	// const hCaptchaResponse = request.body.hCaptchaResponse?.trim();
-
-	/* if (!disabledFeatures.captcha) {
-		if (!hCaptchaResponse || hCaptchaResponse === '') {
-			response.status(400).json({
-				app: 'api',
-				status: 400,
-				error: 'Must fill in captcha'
-			});
-
-			return;
-		}
-
-		const captchaVerify = await hcaptcha.verify(config.hcaptcha.secret, hCaptchaResponse);
-
-		if (!captchaVerify.success) {
-			response.status(400).json({
-				app: 'api',
-				status: 400,
-				error: 'Captcha verification failed'
-			});
-
-			return;
-		}
-	} */
-=======
->>>>>>> 97bd2dac09477ebce4d0f36416ee07348cb8f945
 
 	if (!email || email === '') {
 		response.status(400).json({
@@ -234,19 +204,6 @@ router.post('/', async (request, response) => {
 		return;
 	}
 
-<<<<<<< HEAD
-	/* if (password !== passwordConfirm) {
-		response.status(400).json({
-			app: 'api',
-			status: 400,
-			error: 'Passwords do not match'
-		});
-
-		return;
-	} */
-
-=======
->>>>>>> 97bd2dac09477ebce4d0f36416ee07348cb8f945
 	const miiNameBuffer = Buffer.from(miiName, 'utf16le'); // * UTF8 to UTF16
 
 	if (miiNameBuffer.length > 0x14) {

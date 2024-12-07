@@ -16,7 +16,8 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 	npm ci --omit=dev
 
 
-RUN cd ${app_dir}/node_modules/mii-js && npm install && npm run build
+# for build mii-js libs for fix error
+# RUN cd ${app_dir}/node_modules/mii-js && npm install && npm run build
 
 
 FROM base AS build
