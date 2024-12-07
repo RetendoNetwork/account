@@ -1,101 +1,100 @@
-const fs = require('fs-extra');
 const express = require('express');
-const utils = require('../../../utils');
-const database = require('../../../database');
-const cache = require('../../../cache');
+const { nintendoBase64Encode, nintendoBase64Decode, nascDateTime, nascError, generateToken } = require('../../../utils');
+const { getServerByTitleID } = require('../../../database');
 
 const router = express.Router();
 
-router.post('/', async (request, response) => {
-	const requestParams = request.body;
-	const action = utils.nintendoBase64Decode(requestParams.action).toString();
-	let responseData;
+router.post('/', async (req, res) => {
+	const reqParams = req.body;
+	const action = nintendoBase64Decode(reqParams.action).toString();
+	const titleID = nintendoBase64Decode(reqParams.titleid).toString();
+	const nexAccount = req.nexAccount;
+	let resData = nascError('null');
+
+	if (!nexAccount) {
+		res.status(200).send(resData.toString());
+		return;
+	}
+
+	let serverAccessLevel = 'test';
+	if (titleID !== '0004013000003202') {
+		serverAccessLevel = nexAccount.server_access_level;
+	}
+
+	const server = await getServerByTitleID(titleID, serverAccessLevel);
+
+	if (!server || !server.aes_key) {
+		res.status(200).send(nascError('110').toString());
+		return;
+	}
+
+	if (server.maintenance_mode) {
+		res.status(200).send(nascError('110').toString());
+		return;
+	}
+
+	if (action === 'LOGIN' && server.port <= 0 && server.ip !== '0.0.0.0') {
+		// * Addresses of 0.0.0.0:0 are allowed
+		// * They are expected for titles with no NEX server
+		res.status(200).send(nascError('110').toString());
+		return;
+	}
 
 	switch (action) {
 		case 'LOGIN':
-			responseData = await processLoginRequest(request);
+			resData = await processLoginreq(server, nexAccount.pid, titleID);
 			break;
 		case 'SVCLOC':
-			responseData = await processServiceTokenRequest(request);
+			resData = await processServiceTokenreq(server, nexAccount.pid, titleID);
 			break;
 	}
 
-	response.status(200).send(responseData.toString());
+	res.status(200).send(resData.toString());
 });
 
-/**
- * 
- * @param {express.Request} request
- */
-async function processLoginRequest(request) {
-	const requestParams = request.body;
-	const titleID = utils.nintendoBase64Decode(requestParams.titleid).toString();
-	const { nexUser } = request;
-
-	// TODO: REMOVE AFTER PUBLIC LAUNCH
-	// LET EVERYONE IN THE `test` FRIENDS SERVER
-	// THAT WAY EVERYONE CAN GET AN ASSIGNED PID
-	let serverAccessLevel = 'test';
-	if (titleID !== '0004013000003202') {
-		serverAccessLevel = nexUser.get('server_access_level');
-	}
-
-	const server = await database.getServerByTitleId(titleID, serverAccessLevel);
-
-	if (!server || !server.service_name || !server.ip || !server.port) {
-		return utils.nascError('110');
-	}
-
-	const { service_name, ip, port } = server;
-
-	const cryptoPath = `${__dirname}/../../../../certs/nex/${service_name}`;
-
-	const publicKey = await cache.getNEXPublicKey(service_name);
-	const secretKey = await cache.getNEXSecretKey(service_name);
-
-	const cryptoOptions = {
-		public_key: publicKey,
-		hmac_secret: secretKey
-	};
-
+async function processLoginreq(server, pid, titleID) {
 	const tokenOptions = {
-		system_type: 0x2, // 3DS
-		token_type: 0x3, // nex token,
-		pid: nexUser.get('pid'),
+		system_type: 0x2, // * 3DS
+		token_type: 0x3, // * NEX token
+		pid: pid,
 		access_level: 0,
 		title_id: BigInt(parseInt(titleID, 16)),
 		expire_time: BigInt(Date.now() + (3600 * 1000))
 	};
 
-	let nexToken = await utils.generateToken(cryptoOptions, tokenOptions);
-	nexToken = utils.nintendoBase64Encode(Buffer.from(nexToken, 'base64'));
+	const nexTokenBuffer = await generateToken(server.aes_key, tokenOptions);
+	const nexToken = nintendoBase64Encode(nexTokenBuffer || '');
 
-	const params = new URLSearchParams({
-		locator: utils.nintendoBase64Encode(`${ip}:${port}`),
-		retry: utils.nintendoBase64Encode('0'),
-		returncd: utils.nintendoBase64Encode('001'),
+	return new URLSearchParams({
+		locator: nintendoBase64Encode(`${server.ip}:${server.port}`),
+		retry: nintendoBase64Encode('0'),
+		returncd: nintendoBase64Encode('001'),
 		token: nexToken,
-		datetime: utils.nintendoBase64Encode(Date.now().toString()),
+		datetime: nintendoBase64Encode(nascDateTime()),
 	});
-
-	return params;
 }
 
-/**
- * 
- * @param {express.Request} request
- */
-async function processServiceTokenRequest(request) {
-	const params = new URLSearchParams({
-		retry: utils.nintendoBase64Encode('0'),
-		returncd: utils.nintendoBase64Encode('007'),
-		servicetoken: utils.nintendoBase64Encode(Buffer.alloc(64).toString()), // hard coded for now
-		statusdata: utils.nintendoBase64Encode('Y'),
-		svchost: utils.nintendoBase64Encode('n/a'),
-		datetime: utils.nintendoBase64Encode(Date.now().toString()),
-	});
+async function processServiceTokenreq(server, pid, titleID) {
+	const tokenOptions = {
+		system_type: 0x2, // * 3DS
+		token_type: 0x4, // * Service token
+		pid: pid,
+		access_level: 0,
+		title_id: BigInt(parseInt(titleID, 16)),
+		expire_time: BigInt(Date.now() + (3600 * 1000))
+	};
 
-	return params;
+	const serviceTokenBuffer = await generateToken(server.aes_key, tokenOptions);
+	const serviceToken = nintendoBase64Encode(serviceTokenBuffer || '');
+
+	return new URLSearchParams({
+		retry: nintendoBase64Encode('0'),
+		returncd: nintendoBase64Encode('007'),
+		servicetoken: serviceToken,
+		statusdata: nintendoBase64Encode('Y'),
+		svchost: nintendoBase64Encode('n/a'),
+		datetime: nintendoBase64Encode(nascDateTime()),
+	});
 }
 
 module.exports = router;
