@@ -6,7 +6,6 @@ dotenv.config();
 const disabledFeatures = {
 	redis: false,
 	email: false,
-	captcha: false,
 	s3: false,
 	datastore: false
 };
@@ -53,9 +52,6 @@ const config = {
 		secret: process.env.ACT_CONFIG_S3_ACCESS_SECRET || '',
 		region: process.env.ACT_CONFIG_S3_REGION || '',
 		forcePathStyle: process.env.ACT_CONFIG_S3_FORCE_PATH_STYLE === 'true'
-	},
-	hcaptcha: {
-		secret: process.env.ACT_CONFIG_HCAPTCHA_SECRET || ''
 	},
 	cdn: {
 		subdomain: process.env.ACT_CONFIG_CDN_SUBDOMAIN,
@@ -119,11 +115,6 @@ if (!disabledFeatures.email) {
 		logger.error('Email sending is enabled and no website base was configured. Set the ACT_CONFIG_WEBSITE_BASE environment variable');
 		configValid = false;
 	}
-}
-
-if (!config.hcaptcha.secret) {
-	logger.warn('Failed to find captcha secret config. Disabling feature. To enable feature set the ACT_CONFIG_HCAPTCHA_SECRET environment variable');
-	disabledFeatures.captcha = true;
 }
 
 if (!config.s3.endpoint) {

@@ -249,7 +249,7 @@ async function sendRNIDDeletedEmail(email, username) {
 			text: 'Discord Server',
 			href: 'https://discord.gg/QB5YFJfsFJ'
 		},
-		text: `Your RNID ${username} has successfully been deleted. If you had a tier subscription, a separate cancellation email will be sent. If you do not receive this cancellation email, or your subscription is still being charged, please contact @cedke on our Discord server`
+		text: `Your RNID ${username} has successfully been deleted. If you had a tier subscription, a separate cancellation email will be sent. If you do not receive this cancellation email, or your subscription is still being charged, please contact @cedkechat on our Discord server`
 	};
 
 	await sendMail(options);
