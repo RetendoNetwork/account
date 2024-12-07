@@ -31,6 +31,7 @@ router.post('/', async (request, response) => {
 	const username = request.body.username?.trim();
 	const miiName = request.body.mii_name?.trim();
 	const password = request.body.password?.trim();
+<<<<<<< HEAD
 	// const passwordConfirm = request.body.password_confirm?.trim();
 	// const hCaptchaResponse = request.body.hCaptchaResponse?.trim();
 
@@ -57,6 +58,8 @@ router.post('/', async (request, response) => {
 			return;
 		}
 	} */
+=======
+>>>>>>> 97bd2dac09477ebce4d0f36416ee07348cb8f945
 
 	if (!email || email === '') {
 		response.status(400).json({
@@ -231,6 +234,7 @@ router.post('/', async (request, response) => {
 		return;
 	}
 
+<<<<<<< HEAD
 	/* if (password !== passwordConfirm) {
 		response.status(400).json({
 			app: 'api',
@@ -241,6 +245,8 @@ router.post('/', async (request, response) => {
 		return;
 	} */
 
+=======
+>>>>>>> 97bd2dac09477ebce4d0f36416ee07348cb8f945
 	const miiNameBuffer = Buffer.from(miiName, 'utf16le'); // * UTF8 to UTF16
 
 	if (miiNameBuffer.length > 0x14) {
