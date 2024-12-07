@@ -1,4 +1,3 @@
-
 const crypto = require('node:crypto');
 const express = require('express');
 const emailvalidator = require('email-validator');
@@ -32,32 +31,6 @@ router.post('/', async (request, response) => {
 	const username = request.body.username?.trim();
 	const miiName = request.body.mii_name?.trim();
 	const password = request.body.password?.trim();
-	const passwordConfirm = request.body.password_confirm?.trim();
-	const hCaptchaResponse = request.body.hCaptchaResponse?.trim();
-
-	if (!disabledFeatures.captcha) {
-		if (!hCaptchaResponse || hCaptchaResponse === '') {
-			response.status(400).json({
-				app: 'api',
-				status: 400,
-				error: 'Must fill in captcha'
-			});
-
-			return;
-		}
-
-		const captchaVerify = await hcaptcha.verify(config.hcaptcha.secret, hCaptchaResponse);
-
-		if (!captchaVerify.success) {
-			response.status(400).json({
-				app: 'api',
-				status: 400,
-				error: 'Captcha verification failed'
-			});
-
-			return;
-		}
-	}
 
 	if (!email || email === '') {
 		response.status(400).json({
@@ -156,7 +129,7 @@ router.post('/', async (request, response) => {
 		response.status(400).json({
 			app: 'api',
 			status: 400,
-			error: 'PNID already in use'
+			error: 'RNID already in use'
 		});
 
 		return;
@@ -232,16 +205,6 @@ router.post('/', async (request, response) => {
 		return;
 	}
 
-	if (password !== passwordConfirm) {
-		response.status(400).json({
-			app: 'api',
-			status: 400,
-			error: 'Passwords do not match'
-		});
-
-		return;
-	}
-
 	const miiNameBuffer = Buffer.from(miiName, 'utf16le'); // * UTF8 to UTF16
 
 	if (miiNameBuffer.length > 0x14) {
@@ -274,7 +237,7 @@ router.post('/', async (request, response) => {
 
 		nexAccount.owning_pid = nexAccount.pid;
 
-		await nexAccount.save({ session });
+		await nexAccount.save(); // await nexAccount.save({ session });
 
 		const primaryPasswordHash = nintendoPasswordHash(password, nexAccount.pid);
 		const passwordHash = await bcrypt.hash(primaryPasswordHash, 10);
@@ -325,16 +288,16 @@ router.post('/', async (request, response) => {
 
 		await rnid.generateEmailValidationCode();
 		await rnid.generateEmailValidationToken();
-		await rnid.generateMiiImages();
+		// await rnid.generateMiiImages();
 
-		await rnid.save({ session });
+		await rnid.save(); // await rnid.save({ session });
 
-		await session.commitTransaction();
+		//await session.commitTransaction();
 	} catch (error) {
 		logger.error('[POST] /v1/register: ' + error);
 		if (error.stack) console.error(error.stack);
 
-		await session.abortTransaction();
+		// await session.abortTransaction();
 
 		response.status(500).json({
 			app: 'api',
@@ -344,12 +307,10 @@ router.post('/', async (request, response) => {
 
 		return;
 	} finally {
-		// * This runs regardless of failure
-		// * Returning on catch will not prevent this from running
-		await session.endSession();
+		// await session.endSession();
 	}
 
-	await sendConfirmationEmail(pnid);
+	await sendConfirmationEmail(rnid);
 
 	const accessTokenOptions = {
 		system_type: 0x3, // * API
