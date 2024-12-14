@@ -123,7 +123,7 @@ router.get('/nex_token/@me', async (req, res) => {
 	}
 
 	const nexAccount = await NEXAccount.findOne({
-		owning_pid: pnid.pid
+		owning_pid: rnid.pid
 	});
 
 	if (!nexAccount) {
