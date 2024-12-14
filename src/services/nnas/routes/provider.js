@@ -30,7 +30,7 @@ router.get('/service_token/@me', async (req, res) => {
 			errors: {
 				error: {
 					code: '1021',
-					message: 'The reqed game server was not found'
+					message: 'The requested game server was not found'
 				}
 			}
 		}).end());
@@ -45,7 +45,7 @@ router.get('/service_token/@me', async (req, res) => {
 			errors: {
 				error: {
 					code: '1021',
-					message: 'The reqed game server was not found'
+					message: 'The requested game server was not found'
 				}
 			}
 		}).end());
@@ -61,7 +61,7 @@ router.get('/service_token/@me', async (req, res) => {
 			errors: {
 				error: {
 					code: '1021',
-					message: 'The reqed game server was not found'
+					message: 'The requested game server was not found'
 				}
 			}
 		}).end());
@@ -74,7 +74,7 @@ router.get('/service_token/@me', async (req, res) => {
 			errors: {
 				error: {
 					code: '2002',
-					message: 'The reqed game server is under maintenance'
+					message: 'The requested game server is under maintenance'
 				}
 			}
 		}).end());
@@ -163,7 +163,7 @@ router.get('/nex_token/@me', async (req, res) => {
 			errors: {
 				error: {
 					code: '1021',
-					message: 'The reqed game server was not found'
+					message: 'The requested game server was not found'
 				}
 			}
 		}).end());
@@ -176,7 +176,7 @@ router.get('/nex_token/@me', async (req, res) => {
 			errors: {
 				error: {
 					code: '2002',
-					message: 'The reqed game server is under maintenance'
+					message: 'The requested game server is under maintenance'
 				}
 			}
 		}).end());
@@ -191,7 +191,7 @@ router.get('/nex_token/@me', async (req, res) => {
 			errors: {
 				error: {
 					code: '1021',
-					message: 'The reqed game server was not found'
+					message: 'The requested game server was not found'
 				}
 			}
 		}).end());
