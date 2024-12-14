@@ -28,6 +28,10 @@ app.use(conntest);
 app.use(nasc);
 app.use(nnas);
 
+if (!disabledFeatures.datastore) {
+	app.use(datastore);
+}
+
 logger.info('Creating 404 status handler');
 app.use((req, res) => {
 	const url = utils.fullUrl(req);
