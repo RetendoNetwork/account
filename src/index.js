@@ -10,6 +10,7 @@ const { config, disabledFeatures } = require('./config-manager');
 
 const api = require('./services/api')
 const conntest = require('./services/conntest');
+const datastore = require('./services/datastore');
 const nasc = require('./services/nasc');
 const nnas = require('./services/nnas');
 
