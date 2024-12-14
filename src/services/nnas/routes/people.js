@@ -71,6 +71,8 @@ router.post('/', ratelimit, deviceCertificateMiddleware, async (req, res) => {
 	let rnid;
 	let nexAccount;
 
+	// TODO - Fix errors with transaction and generateMiiImages.
+
 	// const session = await connection().startSession();
 	// await session.startTransaction();
 
